@@ -1,4 +1,4 @@
-package com.example.scan.model;
+package com.alixlp.scan.model;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -24,11 +24,11 @@ public class GoodsResult {
         this.message = message;
     }
 
-    public List<com.example.scan.model.GoodsInfo> getGoodsInfo() {
+    public List<com.alixlp.scan.model.GoodsInfo> getGoodsInfo() {
         return GoodsInfo;
     }
 
-    public void setGoodsInfo(List<com.example.scan.model.GoodsInfo> goodsInfo) {
+    public void setGoodsInfo(List<com.alixlp.scan.model.GoodsInfo> goodsInfo) {
         GoodsInfo = goodsInfo;
     }
 }

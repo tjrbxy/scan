@@ -25,10 +25,10 @@ import android.widget.TextView;
 import com.alixlp.scan.R;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.example.scan.model.GoodsInfo;
-import com.example.scan.model.GoodsResult;
-import com.example.scan.res.GoodsRes;
-import com.example.scan.utils.NetworkUtil;
+import com.alixlp.scan.model.GoodsInfo;
+import com.alixlp.scan.model.GoodsResult;
+import com.alixlp.scan.res.GoodsRes;
+import com.alixlp.scan.utils.NetworkUtil;
 import com.google.gson.Gson;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -108,7 +108,7 @@ public class SettingActivity extends BaseActivity {
 
     private void initSet() {
         // 获取本地缓存
-        String dbStr = (String) SPUtils.getInstance().get(APP_DB, "ay.alixlp.com");
+        String dbStr = (String) SPUtils.getInstance().get(APP_DB, "new.913fang.com");
         if (dbStr.length() > 1) {
             appDb.setText(dbStr);
             btnSave.setText(R.string.app_update);

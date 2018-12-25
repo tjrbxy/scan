@@ -1,4 +1,4 @@
-package com.example.scan.model;
+package com.alixlp.scan.model;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
-import com.example.scan.CodeInfo;
+import com.alixlp.scan.CodeInfo;
 
 import java.util.ArrayList;
 
@@ -38,7 +38,8 @@ public class CodeDao1 {
 
     public void addCode(CodeInfo codeInfo) {
         String sql = "insert into daili_code(goods_id,box_num,code_num)values(?,?,?)";
-        db.execSQL(sql, new String[]{codeInfo.getGoodsId() + "", codeInfo.getBoxNum(), codeInfo.getCodeNum()});
+        db.execSQL(sql, new String[]{codeInfo.getGoodsId() + "", codeInfo.getBoxNum(), codeInfo
+                .getCodeNum()});
     }
 
     public Cursor getCode(String... strs) {

@@ -1,4 +1,4 @@
-package com.example.scan.utils;
+package com.alixlp.scan.utils;
 
 /**
  * Created by Administrator on 2018-10-09.

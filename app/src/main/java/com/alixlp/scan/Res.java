@@ -1,4 +1,4 @@
-package com.example.scan;
+package com.alixlp.scan;
 
 import java.util.ArrayList;
 

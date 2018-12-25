@@ -1,4 +1,4 @@
-package com.example.scan.model;
+package com.alixlp.scan.model;
 
 public class GoodsInfo {
 

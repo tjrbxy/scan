@@ -1,4 +1,4 @@
-package com.example.scan;
+package com.alixlp.scan;
 
 public class Goods {
     private int id;

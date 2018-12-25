@@ -27,10 +27,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.alixlp.scan.R;
+import com.alixlp.scan.biz.CodeBiz;
+import com.alixlp.scan.net.CommonCallback;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.example.scan.Res;
-import com.example.scan.utils.NetworkUtil;
+import com.alixlp.scan.Res;
+import com.alixlp.scan.utils.NetworkUtil;
 import com.google.gson.Gson;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -54,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -96,6 +99,7 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity-app";
 
 
+    private CodeBiz mCodeBiz = new CodeBiz();
     private final BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
 
         @Override
@@ -122,7 +126,8 @@ public class MainActivity extends BaseActivity {
             if (barcodelen == 6 && appCurrBox.length() == 0) {
                 appCurrBox = barcodeStr;
                 String app_box_un = (String) SPUtils.getInstance().get(APP_BOX_UN, "");
-                Log.d(TAG, "onReceive: indexOf" + app_box_un.indexOf(appCurrBox) + ',' + app_box_un);
+                Log.d(TAG, "onReceive: indexOf" + app_box_un.indexOf(appCurrBox) + ',' +
+                        app_box_un);
                 if (app_box_un.indexOf(appCurrBox) == -1) {
                     String f = (app_box_un.length() == 0) ? "" : String.valueOf(',');
                     // 保存扫入码的信息
@@ -155,7 +160,8 @@ public class MainActivity extends BaseActivity {
                 if (appPackingGoods.length() < 1) {
                     codeInfos.add(barcodeStr);
                     jsonStr = new Gson().toJson(codeInfos);
-                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr + "}");
+                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
+                            + "}");
                     scanNum++;
                 } else {
                     try {
@@ -178,7 +184,8 @@ public class MainActivity extends BaseActivity {
                         codeInfos.add(barcodeStr);
                         scanNum = codeInfos.size();
                         jsonStr = new Gson().toJson(codeInfos);
-                        SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr + "}");
+                        SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" +
+                                jsonStr + "}");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -205,7 +212,8 @@ public class MainActivity extends BaseActivity {
                 SPUtils.getInstance().get(APP_PACKING_SUCCESS_NUM, 0);
                 int appSuccessNum = (int) SPUtils.getInstance().get(APP_PACKING_SUCCESS_NUM, 0);
                 SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, appSuccessNum + 1);
-                // edt.putString("app_packing_success_num", String.valueOf(Integer.parseInt(appSuccessNum) + 1));
+                // edt.putString("app_packing_success_num", String.valueOf(Integer.parseInt
+                // (appSuccessNum) + 1));
 
                 showScanResult.setText("");
                 appScuess.setText("已完成箱数：" + (appSuccessNum + 1) + " 箱");
@@ -315,12 +323,62 @@ public class MainActivity extends BaseActivity {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                // 本地备份
                 Date date = new Date();
                 SimpleDateFormat ft = new SimpleDateFormat("MMdd.HH.mm.ss");
-                Log.d(TAG, "onClick: " + ft.format(date));
-                copyFile(path + "/goods.txt", path + "/backupdata/" + Imei + "/" + ft.format(date) + "/");
+                copyFile(path + "/goods.txt", path + "/backupdata/" + Imei + "/" + ft.format
+                        (date) + "/");
+                // 服务器上备份
+                startLoadingProgress();
+                mCodeBiz.uploadFile(Imei, "name", new File(path + "/goods.txt"), new
+                        CommonCallback<List>() {
+                            @Override
+                            public void onError(Exception e) {
+                                stopLoadingProgress();
+                                T.showToast(e.getMessage());
+                            }
+
+                            @Override
+                            public void onSuccess(List response, String info) {
+                                stopLoadingProgress();
+                                T.showToast("备份文件成功" + info);
+                                // 处理服务器数据
+                                startLoadingProgress();
+                                mCodeBiz.uploadInsertCode(info, new CommonCallback<List>() {
+                                    @Override
+                                    public void onError(Exception e) {
+                                        stopLoadingProgress();
+                                        T.showToast(e.getMessage());
+                                    }
+
+                                    @Override
+                                    public void onSuccess(List response, String info) {
+                                        stopLoadingProgress();
+                                        T.showToast(info);
+                                        //重置已扫箱数为0
+                                        T.showToast("数据全部上传完成。");
+                                        SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, 0);
+                                        appScuess.setText("已完成箱数：0 箱");
+
+                                        progressDialog.dismiss();
+                                        File file = new File(path + "/goods.txt");
+                                        if (file.exists()) {
+                                            Date date = new Date();
+                                            SimpleDateFormat ft = new SimpleDateFormat
+                                                    ("yyyyMMdd-HH-mm-ss");
+                                            Log.d(TAG, "onCreate: " + ft.format(date));
+                                            File newfile = new File(path + "/goods-" + ft.format
+                                                    (date) +
+                                                    ".txt");
+                                            Log.d(TAG, "run: " + newfile);
+                                            file.renameTo(newfile);
+                                        }
+                                    }
+                                });
+                            }
+                        });
                 // 进度条
-                progressDialog.setTitle("当前进度,请保持电量充足！");
+/*                progressDialog.setTitle("当前进度,请保持电量充足！");
                 progressDialog.setMessage("正在上传,请稍后......");
                 progressDialog.setCancelable(false);
                 //    设置最大进度，ProgressDialog的进度范围是从1-10000
@@ -331,13 +389,11 @@ public class MainActivity extends BaseActivity {
                 // progressDialog.setSecondaryProgress(70);
                 //    设置ProgressDialog的显示样式，ProgressDialog.STYLE_SPINNER代表的是圆形进度条
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                progressDialog.show();
+                progressDialog.show();*/
                 // 读取文件内容同步数据
-                readData();
-                //重置已扫箱数为0
-                T.showToast("数据全部上传完成。");
-                SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, 0);
-                appScuess.setText("已完成箱数：0 箱");
+                /*****************************************************************************************/
+                // readData();
+                /*****************************************************************************************/
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -351,7 +407,8 @@ public class MainActivity extends BaseActivity {
         appDelete.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId, "[]");
+                appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId,
+                        "[]");
                 JSONObject jsonObject = null;
                 codeInfos = new ArrayList<>();
                 String jsonStr = "";
@@ -363,7 +420,8 @@ public class MainActivity extends BaseActivity {
                     }
                     jsonStr = new Gson().toJson(codeInfos);
                     Log.d(TAG, "scanNum: " + jsonStr);
-                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr + "}");
+                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
+                            + "}");
                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
                     startActivity(intent);
                 } catch (JSONException e) {
@@ -405,7 +463,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void readData() {
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -417,10 +474,13 @@ public class MainActivity extends BaseActivity {
                     fis = new FileInputStream(path + "/goods.txt");
                     isr = new InputStreamReader(fis);
                     // InputStreamReader 是字节流通向字符流的桥梁,
-                    br = new BufferedReader(isr);// 从字符输入流中读取文件中的内容,封装了一个new InputStreamReader的对象
+                    br = new BufferedReader(isr);// 从字符输入流中读取文件中的内容,封装了一个new
+                    // InputStreamReader的对象
                     try {
                         // 计算总数
-                        LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(path + "/goods.txt"));
+                        LineNumberReader lineNumberReader = new LineNumberReader(new
+                                FileReader
+                                (path + "/goods.txt"));
                         lineNumberReader.skip(Long.MAX_VALUE);
                         //注意加1，实际上是读取换行符，所以需要+1
                         int total = lineNumberReader.getLineNumber() + 1;
@@ -435,9 +495,29 @@ public class MainActivity extends BaseActivity {
                             params.put("goodsId", String.valueOf(lineStr.split(",")[1]));
                             params.put("boxNum", String.valueOf(lineStr.split(",")[2]));
                             params.put("filename", Imei);
-                            httpUpload(params);
+                            String code = lineStr.split(",")[0];
+                            String goodsId = lineStr.split(",")[1];
+                            String boxNum = lineStr.split(",")[2];
+                            // 发送请求
+                            mCodeBiz.uploadCode(code, goodsId, boxNum, Imei, new
+                                    CommonCallback<List>() {
+                                        @Override
+                                        public void onError(Exception e) {
+                                            Log.d(TAG, "onError: " + e);
+                                            T.showToast(e.getMessage());
+                                            System.exit(0);
+                                        }
+
+                                        @Override
+                                        public void onSuccess(List response, String info) {
+                                            Log.d(TAG, "onSuccess: " + response);
+                                            T.showToast(info);
+                                        }
+                                    });
+                            // httpUpload(params);
                             i++;
-                            progressDialog.setProgress((int) Math.floor(((float) i / total) * 100));
+                            progressDialog.setProgress((int) Math.floor(((float) i /
+                                    total) * 100));
                             sleep(10);
                         }
                         progressDialog.dismiss();
@@ -446,7 +526,8 @@ public class MainActivity extends BaseActivity {
                             Date date = new Date();
                             SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd-HH-mm-ss");
                             Log.d(TAG, "onCreate: " + ft.format(date));
-                            File newfile = new File(path + "/goods-" + ft.format(date) + ".txt");
+                            File newfile = new File(path + "/goods-" + ft.format(date) +
+                                    ".txt");
                             Log.d(TAG, "run: " + newfile);
                             file.renameTo(newfile);
                         }
@@ -462,7 +543,9 @@ public class MainActivity extends BaseActivity {
                     e.printStackTrace();
                 }
             }
+
         }).start();
+
     }
 
     private void httpUpload(Map<String, String> params) {
@@ -484,7 +567,8 @@ public class MainActivity extends BaseActivity {
                     public void onResponse(String response, int id) {
                         Gson gson = new Gson();
                         Res res = gson.fromJson(response, Res.class);
-                        Log.d(TAG, "onResponse: " + response + " id :" + id + "res" + res.getStatus());
+                        Log.d(TAG, "onResponse: " + response + " id :" + id + "res" + res
+                                .getStatus());
                     }
                 });
     }
@@ -505,14 +589,21 @@ public class MainActivity extends BaseActivity {
         appDelete = (Button) findViewById(R.id.app_delete);
     }
 
+    /**
+     * 上传询问框
+     */
     private void showDialogMsg() {
-        // builder.setIcon(android.R.drawable.ic_dialog_info);
         builder.setTitle("上传提示");
         builder.setMessage("是否上传数据？");
         builder.setCancelable(true);
         builder.create().show();
     }
 
+    /**
+     * 检查文件是否存在
+     *
+     * @return
+     */
     private boolean checkFile() {
         String goodsPath = path + "/goods.txt";
 
@@ -586,20 +677,18 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
         if (mScanManager != null) {
             mScanManager.stopDecode();
             isScaning = false;
         }
+        // 注销Receiver
         unregisterReceiver(mScanReceiver);
-        Log.d(TAG, "-----onPause-----");
     }
 
     /**
@@ -607,16 +696,14 @@ public class MainActivity extends BaseActivity {
      */
     @Override
     protected void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
         // 设置数据
-        initData();
-
-        Log.d(TAG, "onResume: initScan");
+        initData();  // 加载数据
         initScan();
 
         IntentFilter filter = new IntentFilter();
-        int[] idbuf = new int[]{PropertyID.WEDGE_INTENT_ACTION_NAME, PropertyID.WEDGE_INTENT_DATA_STRING_TAG};
+        int[] idbuf = new int[]{PropertyID.WEDGE_INTENT_ACTION_NAME, PropertyID
+                .WEDGE_INTENT_DATA_STRING_TAG};
         String[] value_buf = mScanManager.getParameterString(idbuf);
         Log.d(TAG, "-----value_buf-----" + value_buf);
 
@@ -625,20 +712,18 @@ public class MainActivity extends BaseActivity {
         } else {
             filter.addAction(SCAN_ACTION);
         }
-
+        // 注册 Receiver
         registerReceiver(mScanReceiver, filter);
-        Log.d(TAG, "-----onResume-----");
     }
 
     @Override
     protected void onStart() {
-        // TODO Auto-generated method stub
         super.onStart();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // TODO Auto-generated method stub
+        Log.d(TAG, "onKeyDown: " + keyCode);
         return super.onKeyDown(keyCode, event);
     }
 }

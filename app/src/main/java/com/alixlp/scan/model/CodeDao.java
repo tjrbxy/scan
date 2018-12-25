@@ -1,4 +1,4 @@
-package com.example.scan.model;
+package com.alixlp.scan.model;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
-import com.example.scan.CodeInfo;
+import com.alixlp.scan.CodeInfo;
 
 import java.util.ArrayList;
 

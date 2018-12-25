@@ -1,6 +1,7 @@
 package com.alixlp.scan.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -16,8 +17,36 @@ public class BaseActivity extends Activity {
     protected final String APP_GOODS_KEY = "app_goods_key"; // 下拉商品对应的key
     protected final String APP_GOODS_NAME = "app_goods_name"; // 商品名称
 
+    private ProgressDialog mLoadingDialog;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // loading
+        mLoadingDialog = new ProgressDialog(this);
+        mLoadingDialog.setMessage("处理中...");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopLoadingProgress();
+        mLoadingDialog = null;
+    }
+
+    /**
+     * 开始 loading
+     */
+    protected void startLoadingProgress() {
+        mLoadingDialog.show();
+    }
+
+    /**
+     * 停止 loading
+     */
+    protected void stopLoadingProgress() {
+        if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
+            mLoadingDialog.dismiss();
+        }
     }
 }
