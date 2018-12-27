@@ -120,7 +120,7 @@ public class MainActivity extends BaseActivity {
                 barcodelen = barcodeStr.length();
             }
             goodsId = (Integer) SPUtils.getInstance().get(APP_GOODS_ID, 0); // 当前扫描商品id
-            appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX, ""); // 外箱码
+            appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX + goodsId, ""); // 外箱码
             appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId, "");
             // 保存箱码
             if (barcodelen == 6 && appCurrBox.length() == 0) {
@@ -193,13 +193,13 @@ public class MainActivity extends BaseActivity {
             }
             Log.d(TAG, "onReceive: scanNum" + scanNum);
             // app_packing_num
-            String packingNum = (String) SPUtils.getInstance().get(APP_PACKING_NUM, 0);
-            if (scanNum < Integer.parseInt(packingNum) && barcodelen == 6) {
+            Integer packingNum = (Integer) SPUtils.getInstance().get(APP_PACKING_NUM, 0);
+            if (scanNum < packingNum && barcodelen == 6) {
                 soundpool.play(iSoundid, 1, 1, 0, 0, 1);
                 return;
             }
             // 显示扫描结果
-            if (scanNum == Integer.parseInt(packingNum)) {
+            if (scanNum == packingNum) {
                 scanNum = 0;
                 for (int i = 0; i < codeInfos.size(); i++) {
                     WriteStringToFile2(codeInfos.get(i) + "," + goodsId + "," + appCurrBox + "\n");
@@ -223,7 +223,8 @@ public class MainActivity extends BaseActivity {
                 showScanResult.setText(showScanResult.getText().toString() + barcodeStr + "\n");
             }
             Log.d(TAG, "onReceive: app_packing_num" + packingNum);
-            appCurr.setText("当前装箱：" + scanNum + "/" + packingNum);
+            appCurr.setText("当前装箱（" + SPUtils.getInstance().get(APP_GOODS_NAME, "") + "）：" +
+                    scanNum + "/" + packingNum);
 
 
         }
@@ -642,7 +643,8 @@ public class MainActivity extends BaseActivity {
         showScanResult.requestFocus();
 
         int packingNum = (int) SPUtils.getInstance().get(APP_PACKING_NUM, 0);
-        appCurr.setText("当前装箱：" + num + "/" + packingNum);
+        appCurr.setText("当前装箱（" + SPUtils.getInstance().get(APP_GOODS_NAME, "") + "）：" + num +
+                "/" + packingNum);
         appScuess.setText("已完成箱数：" + appPackingSuccessNum + " 箱");
     }
 

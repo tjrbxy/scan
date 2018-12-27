@@ -9,7 +9,7 @@ public class BaseActivity extends Activity {
     protected final String LANGUAGE = "app_switch"; // 语言选择
     protected final String APP_CURR_BOX = "app_curr_box"; // 当前箱码
     protected final String APP_PACKING_GOODS = "app_packing_goods"; // 装箱商品
-    protected final String APP_BOX_UN = "app_box_un"; //
+    protected final String APP_BOX_UN = "app_box_un"; // 已扫入的外箱码
     protected final String APP_GOODS_ID = "app_goods_id"; // 商品ID
     protected final String APP_DB = "app_db"; // API
     protected final String GOODS = "goods"; // 商品信息
