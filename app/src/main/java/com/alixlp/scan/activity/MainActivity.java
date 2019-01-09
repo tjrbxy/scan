@@ -66,20 +66,15 @@ import static java.lang.Thread.sleep;
 public class MainActivity extends BaseActivity {
 
     private final static String SCAN_ACTION = ScanManager.ACTION_DECODE;//default action
-    private final String APP_PACKING_SUCCESS_NUM = "app_packing_success_num";
-    private ActionBar actionBar;
+    // private final String APP_PACKING_SUCCESS_NUM = "app_packing_success_num";
     private EditText showScanResult;
-    private Button btn;
-    // private Button mScan; //开始扫码按钮
-    // private Button mClose; // 关闭按钮
-
     private Button btnSet; //系统设置
     private Button btnUp; // 上传
-
     private Vibrator mVibrator;
     private ScanManager mScanManager;
     private SoundPool soundpool = null;
-    private int soundid, pSoundid, bSoundid, iSoundid, rSoundid, rcSoundid;
+    private int soundid, pSoundid, bSoundid, iSoundid, rSoundid, rcSoundid, sSoundid,
+            outsideSoundid;
     private String barcodeStr;
 
     private boolean isUse = false;
@@ -96,6 +91,7 @@ public class MainActivity extends BaseActivity {
     private ProgressDialog progressDialog;
     private int scanNum = 0;
     private String Imei = "";
+    private View appDelete;
     private static final String TAG = "MainActivity-app";
 
 
@@ -116,8 +112,21 @@ public class MainActivity extends BaseActivity {
             barcodeStr = new String(barcode, 0, barcodelen); // 扫描结果
             // 兼容二维码url
             if (barcodeStr.indexOf("?f=") != -1) {
+                Log.d(TAG, "onReceive1: " + barcodeStr);
+                // 加入验证
+                String AppDb = (String) SPUtils.getInstance().get(APP_DB, "");
+                if (barcodeStr.indexOf((String) SPUtils.getInstance().get(APP_DB, "")) == -1) {
+                    soundpool.play(outsideSoundid, 1, 1, 0, 0, 1);
+                    return;
+                }
                 barcodeStr = barcodeStr.split("=")[1];
                 barcodelen = barcodeStr.length();
+            } else {
+                if (barcodeStr.length() != 6 && barcodeStr.indexOf((String) SPUtils.getInstance()
+                        .get(APP_DB, "")) == -1) {
+                    soundpool.play(outsideSoundid, 1, 1, 0, 0, 1);
+                    return;
+                }
             }
             goodsId = (Integer) SPUtils.getInstance().get(APP_GOODS_ID, 0); // 当前扫描商品id
             appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX + goodsId, ""); // 外箱码
@@ -209,12 +218,8 @@ public class MainActivity extends BaseActivity {
 
                 SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
                 SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
-                SPUtils.getInstance().get(APP_PACKING_SUCCESS_NUM, 0);
                 int appSuccessNum = (int) SPUtils.getInstance().get(APP_PACKING_SUCCESS_NUM, 0);
                 SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, appSuccessNum + 1);
-                // edt.putString("app_packing_success_num", String.valueOf(Integer.parseInt
-                // (appSuccessNum) + 1));
-
                 showScanResult.setText("");
                 appScuess.setText("已完成箱数：" + (appSuccessNum + 1) + " 箱");
                 soundpool.play(sSoundid, 1, 1, 0, 0, 1);
@@ -230,8 +235,6 @@ public class MainActivity extends BaseActivity {
         }
 
     };
-    private int sSoundid;
-    private View appDelete;
 
     public void WriteStringToFile2(String string) {
         File file = new File(path + "/goods.txt");
@@ -378,23 +381,6 @@ public class MainActivity extends BaseActivity {
                                 });
                             }
                         });
-                // 进度条
-/*                progressDialog.setTitle("当前进度,请保持电量充足！");
-                progressDialog.setMessage("正在上传,请稍后......");
-                progressDialog.setCancelable(false);
-                //    设置最大进度，ProgressDialog的进度范围是从1-10000
-                progressDialog.setMax(100);
-                //    设置主进度
-                progressDialog.setProgress(0);
-                //    设置第二进度
-                // progressDialog.setSecondaryProgress(70);
-                //    设置ProgressDialog的显示样式，ProgressDialog.STYLE_SPINNER代表的是圆形进度条
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                progressDialog.show();*/
-                // 读取文件内容同步数据
-                /*****************************************************************************************/
-                // readData();
-                /*****************************************************************************************/
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -461,117 +447,6 @@ public class MainActivity extends BaseActivity {
             e.printStackTrace();
 
         }
-    }
-
-    private void readData() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                FileInputStream fis = null;
-                InputStreamReader isr = null;
-                BufferedReader br = null;
-                try {
-                    String lineStr;
-                    fis = new FileInputStream(path + "/goods.txt");
-                    isr = new InputStreamReader(fis);
-                    // InputStreamReader 是字节流通向字符流的桥梁,
-                    br = new BufferedReader(isr);// 从字符输入流中读取文件中的内容,封装了一个new
-                    // InputStreamReader的对象
-                    try {
-                        // 计算总数
-                        LineNumberReader lineNumberReader = new LineNumberReader(new
-                                FileReader
-                                (path + "/goods.txt"));
-                        lineNumberReader.skip(Long.MAX_VALUE);
-                        //注意加1，实际上是读取换行符，所以需要+1
-                        int total = lineNumberReader.getLineNumber() + 1;
-                        Log.d(TAG, "行数：" + total);
-                        int i = 0;
-                        Log.d(TAG, "readData: total" + total);
-                        while ((lineStr = br.readLine()) != null) {
-                            if (lineStr.length() == 0) continue;
-                            Map params = new HashMap<String, String>();
-                            Log.d(TAG, "line: " + lineStr);
-                            params.put("code", String.valueOf(lineStr.split(",")[0]));
-                            params.put("goodsId", String.valueOf(lineStr.split(",")[1]));
-                            params.put("boxNum", String.valueOf(lineStr.split(",")[2]));
-                            params.put("filename", Imei);
-                            String code = lineStr.split(",")[0];
-                            String goodsId = lineStr.split(",")[1];
-                            String boxNum = lineStr.split(",")[2];
-                            // 发送请求
-                            mCodeBiz.uploadCode(code, goodsId, boxNum, Imei, new
-                                    CommonCallback<List>() {
-                                        @Override
-                                        public void onError(Exception e) {
-                                            Log.d(TAG, "onError: " + e);
-                                            T.showToast(e.getMessage());
-                                            System.exit(0);
-                                        }
-
-                                        @Override
-                                        public void onSuccess(List response, String info) {
-                                            Log.d(TAG, "onSuccess: " + response);
-                                            T.showToast(info);
-                                        }
-                                    });
-                            // httpUpload(params);
-                            i++;
-                            progressDialog.setProgress((int) Math.floor(((float) i /
-                                    total) * 100));
-                            sleep(10);
-                        }
-                        progressDialog.dismiss();
-                        File file = new File(path + "/goods.txt");
-                        if (file.exists()) {
-                            Date date = new Date();
-                            SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd-HH-mm-ss");
-                            Log.d(TAG, "onCreate: " + ft.format(date));
-                            File newfile = new File(path + "/goods-" + ft.format(date) +
-                                    ".txt");
-                            Log.d(TAG, "run: " + newfile);
-                            file.renameTo(newfile);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    br.close();
-                    isr.close();
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }).start();
-
-    }
-
-    private void httpUpload(Map<String, String> params) {
-
-        String url = "http://" + SPUtils.getInstance().get(APP_DB, "") + "/api.php/code";
-        Log.d(TAG, "httpUpload: " + params);
-        OkHttpUtils
-                .post()
-                .url(url)
-                .params(params)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        Log.d(TAG, "onError: " + call + " id :" + id);
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        Gson gson = new Gson();
-                        Res res = gson.fromJson(response, Res.class);
-                        Log.d(TAG, "onResponse: " + response + " id :" + id + "res" + res
-                                .getStatus());
-                    }
-                });
     }
 
     private void initView() {
@@ -666,6 +541,7 @@ public class MainActivity extends BaseActivity {
             rSoundid = soundpool.load(this, R.raw.coderepeatc, 1); // 产品码重复
             rcSoundid = soundpool.load(this, R.raw.codeboxrepeatc, 1); // 产品码重复
             sSoundid = soundpool.load(this, R.raw.codesuccessc, 1); //完成
+            outsideSoundid = soundpool.load(this, R.raw.ctoutsidesoundid, 1); // 系统外码
         } else {
             // 普通话
             bSoundid = soundpool.load(this, R.raw.codebox, 1);
@@ -674,6 +550,7 @@ public class MainActivity extends BaseActivity {
             rSoundid = soundpool.load(this, R.raw.coderepeat, 1);
             rcSoundid = soundpool.load(this, R.raw.codeboxrepeat, 1); // 产品码重复
             sSoundid = soundpool.load(this, R.raw.codesuccess, 1);
+            outsideSoundid = soundpool.load(this, R.raw.outsidesoundid, 1); // 系统外码
         }
     }
 

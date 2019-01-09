@@ -29,7 +29,7 @@
     <string name="scanner_reset_def_summary">扫描头出厂设置</string>
     <string name="scanner_toast">扫描头重置完成!</string>
     <string name="scanner_hint">对准条码，按设备上扫描键获取条码</string>
-    <string name="app_copyright">©alixlp.com</string>
+    <string name="app_copyright">©masaic.net</string>
     <string name="app_setting">系统设置</string>
     <string name="app_upload">上传数据</string>
     <string name="app_save">保存设置</string>

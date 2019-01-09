@@ -16,7 +16,7 @@ public class BaseActivity extends Activity {
     protected final String APP_PACKING_NUM = "app_packing_num"; //商品装箱数量
     protected final String APP_GOODS_KEY = "app_goods_key"; // 下拉商品对应的key
     protected final String APP_GOODS_NAME = "app_goods_name"; // 商品名称
-
+    protected final String APP_PACKING_SUCCESS_NUM = "app_packing_success_num"; // 已完成箱数
     private ProgressDialog mLoadingDialog;
 
     @Override
