@@ -533,7 +533,7 @@ public class MainActivity extends BaseActivity {
         soundid = soundpool.load("/etc/Scan_new.ogg", 1);
 
         // 判断当前语言种类
-        if ((Boolean) SPUtils.getInstance().get(LANGUAGE, false)) {
+        if ((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false)) {
             // 粤语
             bSoundid = soundpool.load(this, R.raw.codeboxc, 1); // 箱码
             pSoundid = soundpool.load(this, R.raw.codeproductc, 1); //产品吗

@@ -83,9 +83,10 @@ public class SettingActivity extends BaseActivity {
     // 菜单选择按钮事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        String goodsId = (String) SPUtils.getInstance().get(APP_GOODS_ID, "");
+        int goodsId = (int) SPUtils.getInstance().get(APP_GOODS_ID, 0);
         switch (item.getItemId()) {
             case R.id.app_empty:
+                Log.d(TAG, "onOptionsItemSelected: " + APP_CURR_BOX + goodsId);
                 SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
                 SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
                 SPUtils.getInstance().put(APP_BOX_UN, "");
@@ -113,7 +114,7 @@ public class SettingActivity extends BaseActivity {
             appDb.setText(dbStr);
             btnSave.setText(R.string.app_update);
         }
-        String goods = (String) SPUtils.getInstance().get(GOODS, "");
+        String goods = (String) SPUtils.getInstance().get(APP_GOODS, "");
         if (goods.length() > 10) {
             GoodsResult goodsResult = new GoodsResult();
             try {
@@ -138,14 +139,16 @@ public class SettingActivity extends BaseActivity {
                 e.printStackTrace();
             }
 
-            String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0) + "</font>";
+            String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
+                    + "</font>";
             appPackingNum.setText(Html.fromHtml(str));
-            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goodsResult.getGoodsInfo()));
+            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goodsResult.getGoodsInfo
+                    ()));
 
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
         }
         ;
-        aSwitch.setChecked((Boolean) SPUtils.getInstance().get(LANGUAGE, false));
+        aSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
         btnSave.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -196,14 +199,15 @@ public class SettingActivity extends BaseActivity {
                 } else {
                     T.showToast("使用默认普通话提示！");
                 }
-                SPUtils.getInstance().put(LANGUAGE, isChecked);
+                SPUtils.getInstance().put(APP_LANGUAGE, isChecked);
             }
         });
     }
 
     private void getGoodsData() {
         ;
-        String url = "http://" + SPUtils.getInstance().get(APP_DB, "new.913fang.com") + "/api.php/goods";
+        String url = "http://" + SPUtils.getInstance().get(APP_DB, "new.913fang.com") + "/api" +
+                ".php/goods";
         OkHttpUtils
                 .get()
                 .url(url)
@@ -216,7 +220,7 @@ public class SettingActivity extends BaseActivity {
 
                     @Override
                     public void onResponse(String response, int id) {
-                        SPUtils.getInstance().put(GOODS, response);
+                        SPUtils.getInstance().put(APP_GOODS, response);
                         Log.d(TAG, "onResponse: " + response);
                         Gson gson = new Gson();
                         GoodsRes res = gson.fromJson(response, GoodsRes.class);
@@ -257,13 +261,15 @@ public class SettingActivity extends BaseActivity {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
-            LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context
+                    .LAYOUT_INFLATER_SERVICE);
             if (convertView == null) {
                 viewHolder = new ViewHolder();
                 convertView = layoutInflater.inflate(R.layout.item_demo_list, null);
                 // 获取控件
                 viewHolder.nameTextView = (TextView) convertView.findViewById(R.id.title_text_view);
-                // viewHolder.avatarImageView = (ImageView) convertView.findViewById(R.id.icon_image_view);
+                // viewHolder.avatarImageView = (ImageView) convertView.findViewById(R.id
+                // .icon_image_view);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
@@ -287,7 +293,8 @@ public class SettingActivity extends BaseActivity {
         // 新进程处理
         @Override
         protected String doInBackground(Void... params) {
-            String url = "http://" + SPUtils.getInstance().get(APP_DB, "new.913fang.com") + "/api.php/goods";
+            String url = "http://" + SPUtils.getInstance().get(APP_DB, "new.913fang.com") + "/api" +
+                    ".php/goods";
             return request(url);
         }
 
@@ -298,7 +305,7 @@ public class SettingActivity extends BaseActivity {
             GoodsResult goodsResult = new GoodsResult();
             try {
                 JSONObject jsonObject = new JSONObject(result);
-                SPUtils.getInstance().put(GOODS, result);
+                SPUtils.getInstance().put(APP_GOODS, result);
                 int status = jsonObject.getInt("status");
                 String message = jsonObject.getString("message");
                 goodsResult.setStatus(status);
@@ -318,9 +325,11 @@ public class SettingActivity extends BaseActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0) + "</font>";
+            String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
+                    + "</font>";
             appPackingNum.setText(Html.fromHtml(str));
-            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goodsResult.getGoodsInfo()));
+            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goodsResult.getGoodsInfo
+                    ()));
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
         }
 
@@ -337,7 +346,8 @@ public class SettingActivity extends BaseActivity {
                 String responseMessage = connection.getResponseMessage();
                 String result = null;
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+                    InputStreamReader inputStreamReader = new InputStreamReader(connection
+                            .getInputStream());
                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                     StringBuilder stringBuilder = new StringBuilder();
                     String line;
