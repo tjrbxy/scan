@@ -1,17 +1,14 @@
 package com.alixlp.scan.biz;
 
-import android.os.DropBoxManager;
 import android.util.Log;
 
 import com.alixlp.scan.net.CommonCallback;
-import com.alixlp.scan.utils.SPUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.builder.HasParamsable;
 
 import java.io.File;
 import java.util.List;
 
-public class CodeBiz {
+public class CodeBiz extends BaseBiz {
     private static final String TAG = "CodeBiz-app";
     private final String APP_DB = "app_db";
 
@@ -23,7 +20,7 @@ public class CodeBiz {
     public void uploadFile(String device, String name, File path,
                            CommonCallback<List>
                                    commonCallback) {
-        String url = "http://" + SPUtils.getInstance().get(APP_DB, "") + "/api.php/upload";
+        String url = API_URL + "/api.php/upload";
         Log.d(TAG, "uploadFile: " + url);
         OkHttpUtils
                 .post()
@@ -37,7 +34,7 @@ public class CodeBiz {
 
     public void uploadCode(String code, String goodsId, String boxNum, String filename,
                            CommonCallback<List> commonCallback) {
-        String url = "http://" + SPUtils.getInstance().get(APP_DB, "") + "/api.php/code";
+        String url = API_URL + "/api.php/code";
         OkHttpUtils
                 .post()
                 .url(url)
@@ -50,7 +47,7 @@ public class CodeBiz {
     }
 
     public void uploadInsertCode(String filename, CommonCallback<List> commonCallback) {
-        String url = "http://" + SPUtils.getInstance().get(APP_DB, "") + "/api.php/code/insertCode";
+        String url = API_URL + "/api.php/code/insertCode";
         OkHttpUtils
                 .post()
                 .url(url)
