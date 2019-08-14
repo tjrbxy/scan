@@ -57,8 +57,8 @@ public class SettingActivity extends BaseActivity {
     private Spinner spinner;
     private TextView appPackingNum;
 
-    private ListView mListView;
-    private static final String TAG = "SettingActivity";
+
+    private static final String TAG = "SettingActivity-app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +109,7 @@ public class SettingActivity extends BaseActivity {
 
     private void initSet() {
         // 获取本地缓存
-        String dbStr = (String) SPUtils.getInstance().get(APP_DB, "new.913fang.com");
+        String dbStr = (String) SPUtils.getInstance().get(APP_DB, "demo.masaic.net");
         if (dbStr.length() > 1) {
             appDb.setText(dbStr);
             btnSave.setText(R.string.app_update);
@@ -206,7 +206,7 @@ public class SettingActivity extends BaseActivity {
 
     private void getGoodsData() {
         ;
-        String url = "http://" + SPUtils.getInstance().get(APP_DB, "new.913fang.com") + "/api" +
+        String url = "https://" + SPUtils.getInstance().get(APP_DB, "") + "/api" +
                 ".php/goods";
         OkHttpUtils
                 .get()
@@ -293,7 +293,7 @@ public class SettingActivity extends BaseActivity {
         // 新进程处理
         @Override
         protected String doInBackground(Void... params) {
-            String url = "http://" + SPUtils.getInstance().get(APP_DB, "new.913fang.com") + "/api" +
+            String url = "https://" + SPUtils.getInstance().get(APP_DB, "") + "/api" +
                     ".php/goods";
             return request(url);
         }
