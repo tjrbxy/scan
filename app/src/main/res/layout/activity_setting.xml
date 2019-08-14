@@ -21,6 +21,8 @@
 
         <EditText
             android:id="@+id/app_db"
+            android:minLines="1"
+            android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
