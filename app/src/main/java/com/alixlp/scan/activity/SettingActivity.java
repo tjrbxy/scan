@@ -23,6 +23,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.alixlp.scan.R;
+import com.alixlp.scan.json.Goods;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
 import com.alixlp.scan.model.GoodsInfo;
@@ -123,14 +124,14 @@ public class SettingActivity extends BaseActivity {
                 String message = jsonObject.getString("message");
                 goodsResult.setStatus(status);
                 goodsResult.setMessage(message);
-                List<GoodsInfo> goodsInfos = new ArrayList<>();
+                List<Goods> goodsInfos = new ArrayList<>();
                 JSONArray dataArray = jsonObject.getJSONArray("data");
                 for (int i = 0; i < dataArray.length(); i++) {
-                    GoodsInfo goodsInfo = new GoodsInfo();
+                    Goods goodsInfo = new Goods();
                     JSONObject tempJsonObject = (JSONObject) dataArray.get(i);
-                    goodsInfo.setGoodsId(tempJsonObject.getInt("id"));
-                    goodsInfo.setGoodsName(tempJsonObject.getString("name"));
-                    goodsInfo.setGoodsNum(tempJsonObject.getInt("num"));
+                    goodsInfo.setId(tempJsonObject.getInt("id"));
+                    goodsInfo.setName(tempJsonObject.getString("name"));
+                    goodsInfo.setNum(tempJsonObject.getInt("num"));
                     goodsInfos.add(goodsInfo);
                 }
                 goodsResult.setGoodsInfo(goodsInfos);
@@ -147,7 +148,6 @@ public class SettingActivity extends BaseActivity {
 
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
         }
-        ;
         aSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
         btnSave.setOnClickListener(new View.OnClickListener() {
 
@@ -205,7 +205,6 @@ public class SettingActivity extends BaseActivity {
     }
 
     private void getGoodsData() {
-        ;
         String url = "https://" + SPUtils.getInstance().get(APP_DB, "") + "/api" +
                 ".php/goods";
         OkHttpUtils
@@ -236,9 +235,9 @@ public class SettingActivity extends BaseActivity {
     public class AppListAdapter extends BaseAdapter {
 
         private Context mContext;
-        private List<GoodsInfo> mInfos;
+        private List<Goods> mInfos;
 
-        public AppListAdapter(Context context, List<GoodsInfo> infos) {
+        public AppListAdapter(Context context, List<Goods> infos) {
             mContext = context;
             mInfos = infos;
         }
@@ -275,7 +274,7 @@ public class SettingActivity extends BaseActivity {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             // 和数据之间进行绑定
-            viewHolder.nameTextView.setText(mInfos.get(position).getGoodsName());
+            viewHolder.nameTextView.setText(mInfos.get(position).getName());
             // viewHolder.avatarImageView.setVisibility(View.GONE);
 
             return convertView;
@@ -288,7 +287,7 @@ public class SettingActivity extends BaseActivity {
     }
 
 
-    public class AppAsyncTask extends AsyncTask<Void, Integer, String> {
+/*    public class AppAsyncTask extends AsyncTask<Void, Integer, String> {
 
         // 新进程处理
         @Override
@@ -310,14 +309,14 @@ public class SettingActivity extends BaseActivity {
                 String message = jsonObject.getString("message");
                 goodsResult.setStatus(status);
                 goodsResult.setMessage(message);
-                List<GoodsInfo> goodsInfos = new ArrayList<>();
+                List<Goods> goodsInfos = new ArrayList<>();
                 JSONArray dataArray = jsonObject.getJSONArray("data");
                 for (int i = 0; i < dataArray.length(); i++) {
-                    GoodsInfo goodsInfo = new GoodsInfo();
+                    Goods goodsInfo = new Goods();
                     JSONObject tempJsonObject = (JSONObject) dataArray.get(i);
-                    goodsInfo.setGoodsId(tempJsonObject.getInt("id"));
-                    goodsInfo.setGoodsName(tempJsonObject.getString("name"));
-                    goodsInfo.setGoodsNum(tempJsonObject.getInt("num"));
+                    goodsInfo.setId(tempJsonObject.getInt("id"));
+                    goodsInfo.setName(tempJsonObject.getString("name"));
+                    goodsInfo.setNum(tempJsonObject.getInt("num"));
                     goodsInfos.add(goodsInfo);
                 }
                 goodsResult.setGoodsInfo(goodsInfos);
@@ -364,6 +363,6 @@ public class SettingActivity extends BaseActivity {
             }
             return null;
         }
-    }
+    }*/
 
 }

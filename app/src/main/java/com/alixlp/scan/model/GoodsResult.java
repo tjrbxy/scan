@@ -1,12 +1,14 @@
 package com.alixlp.scan.model;
 
+import com.alixlp.scan.json.Goods;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class GoodsResult {
     int status;
     String message;
-    List<GoodsInfo> GoodsInfo = new ArrayList<>();
+    List<Goods> GoodsInfo = new ArrayList<>();
 
     public int getStatus() {
         return status;
@@ -24,11 +26,11 @@ public class GoodsResult {
         this.message = message;
     }
 
-    public List<com.alixlp.scan.model.GoodsInfo> getGoodsInfo() {
+    public List<Goods> getGoodsInfo() {
         return GoodsInfo;
     }
 
-    public void setGoodsInfo(List<com.alixlp.scan.model.GoodsInfo> goodsInfo) {
+    public void setGoodsInfo(List<Goods> goodsInfo) {
         GoodsInfo = goodsInfo;
     }
 }
