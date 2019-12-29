@@ -322,7 +322,35 @@ public class MainActivity extends BaseActivity {
                         (date) + "/");
                 // 服务器上备份
                 startLoadingProgress();
-                mCodeBiz.uploadFile(Imei, "name", new File(path + "/goods.txt"), new
+                mCodeBiz.uploadCode(Imei, new File(path + "/goods.txt"), new CommonCallback<List>() {
+                    @Override
+                    public void onError(Exception e) {
+                        stopLoadingProgress();
+                    }
+
+                    @Override
+                    public void onSuccess(List response, String info) {
+                        stopLoadingProgress();
+                        T.showToast(info);
+                        Log.d(TAG, "onSuccess: " + info);
+                        //重置已扫箱数为0
+                        T.showToast("数据全部上传完成。");
+                        SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, 0);
+                        appScuess.setText("已完成箱数：0 箱");
+                        progressDialog.dismiss();
+                        File file = new File(path + "/goods.txt");
+                        if (file.exists()) {
+                            Date date = new Date();
+                            SimpleDateFormat ft = new SimpleDateFormat
+                                    ("yyyyMMdd-HH-mm-ss");
+                            File newfile = new File(path + "/goods-" + ft.format
+                                    (date) +
+                                    ".txt");
+                            file.renameTo(newfile);
+                        }
+                    }
+                });
+/*                mCodeBiz.uploadFile(Imei, "name", new File(path + "/goods.txt"), new
                         CommonCallback<List>() {
                             @Override
                             public void onError(Exception e) {
@@ -368,7 +396,7 @@ public class MainActivity extends BaseActivity {
                                     }
                                 });
                             }
-                        });
+                        });*/
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
