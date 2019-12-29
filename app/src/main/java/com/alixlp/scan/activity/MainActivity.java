@@ -326,6 +326,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onError(Exception e) {
                         stopLoadingProgress();
+                        T.showToast(e.getMessage());
                     }
 
                     @Override
