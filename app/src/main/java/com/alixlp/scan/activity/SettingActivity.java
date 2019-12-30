@@ -2,7 +2,6 @@ package com.alixlp.scan.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -17,60 +16,53 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.alixlp.scan.R;
+import com.alixlp.scan.biz.GoodsBiz;
 import com.alixlp.scan.json.Goods;
+import com.alixlp.scan.net.CommonCallback;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.alixlp.scan.model.GoodsInfo;
-import com.alixlp.scan.model.GoodsResult;
-import com.alixlp.scan.res.GoodsRes;
 import com.alixlp.scan.utils.NetworkUtil;
 import com.google.gson.Gson;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class SettingActivity extends BaseActivity {
 
-
-    private Button btnSave; // 保存
-    private EditText appDb; // 设置url
-    private Switch aSwitch;
-    private Spinner spinner;
-    private TextView appPackingNum;
-
-
+    @BindView(R.id.app_save)
+    Button mBtnSave;
+    @BindView(R.id.app_db)
+    EditText appDb;
+    @BindView(R.id.spinner)
+    Spinner spinner;
+    @BindView(R.id.app_packing_num)
+    TextView appPackingNum;
+    @BindView(R.id.app_switch)
+    Switch mBtnSwitch;
     private static final String TAG = "SettingActivity-app";
+
+    private GoodsBiz mGoodsBiz = new GoodsBiz();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-        initView();
-        initEvent();
+        ButterKnife.bind(this);
         initSet();
-    }
-
-    private void initEvent() {
     }
 
     // 创建option菜单
@@ -99,88 +91,36 @@ public class SettingActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void initView() {
-        btnSave = (Button) findViewById(R.id.app_save);
-        appDb = (EditText) findViewById(R.id.app_db);
-        spinner = (Spinner) findViewById(R.id.spinner); // 下拉框
-        appPackingNum = (TextView) findViewById(R.id.app_packing_num);
-        aSwitch = (Switch) findViewById(R.id.app_switch);
-    }
-
-
     private void initSet() {
         // 获取本地缓存
         String dbStr = (String) SPUtils.getInstance().get(APP_DB, "demo.masaic.net");
         if (dbStr.length() > 1) {
             appDb.setText(dbStr);
-            btnSave.setText(R.string.app_update);
+            mBtnSave.setText(R.string.app_update);
         }
-        String goods = (String) SPUtils.getInstance().get(APP_GOODS, "");
-        if (goods.length() > 10) {
-            GoodsResult goodsResult = new GoodsResult();
-            try {
-                JSONObject jsonObject = new JSONObject(goods);
-                int status = jsonObject.getInt("status");
-                String message = jsonObject.getString("message");
-                goodsResult.setStatus(status);
-                goodsResult.setMessage(message);
-                List<Goods> goodsInfos = new ArrayList<>();
-                JSONArray dataArray = jsonObject.getJSONArray("data");
-                for (int i = 0; i < dataArray.length(); i++) {
-                    Goods goodsInfo = new Goods();
-                    JSONObject tempJsonObject = (JSONObject) dataArray.get(i);
-                    goodsInfo.setId(tempJsonObject.getInt("id"));
-                    goodsInfo.setName(tempJsonObject.getString("name"));
-                    goodsInfo.setNum(tempJsonObject.getInt("num"));
-                    goodsInfos.add(goodsInfo);
-                }
-                goodsResult.setGoodsInfo(goodsInfos);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
+        String jsonGoods = (String) SPUtils.getInstance().get(APP_GOODS, "");
+        if (jsonGoods.length() > 10) {
+            List<Goods> goods = new Gson().fromJson(jsonGoods, new TypeToken<List<Goods>>() {
+            }.getType());
             String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
                     + "</font>";
             appPackingNum.setText(Html.fromHtml(str));
-            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goodsResult.getGoodsInfo
-                    ()));
-
+            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goods));
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
         }
-        aSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
-        btnSave.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                if (!NetworkUtil.isNetworkAvailable(SettingActivity.this)) {
-                    T.showToast("请在有网络的情况下使用此按钮。");
-                    return;
-                }
-                // 当按钮点击时调用
-                String db = appDb.getText().toString();
-                SPUtils.getInstance().put(APP_DB, db);
-                btnSave.setText(R.string.app_update);
-                T.showToast("数据库被设置为(" + db + ")");
-                // 获取数据
-                getGoodsData();
-                // 获取下拉框数据
-
-            }
-        });
+        mBtnSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
         // 选择框
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                GoodsInfo goodsInfo = (GoodsInfo) parent.getItemAtPosition(position);
-                String str = "装箱数:<font color =red >" + goodsInfo.getGoodsNum() + "</font>";
+                Goods goodsInfo = (Goods) parent.getItemAtPosition(position);
+                String str = "装箱数:<font color =red >" + goodsInfo.getNum() + "</font>";
                 appPackingNum.setText(Html.fromHtml(str));
                 SPUtils.getInstance().put(APP_GOODS_KEY, position);
-                SPUtils.getInstance().put(APP_GOODS_ID, goodsInfo.getGoodsId());
-                SPUtils.getInstance().put(APP_GOODS_NAME, goodsInfo.getGoodsName());
-                SPUtils.getInstance().put(APP_PACKING_NUM, goodsInfo.getGoodsNum());
+                SPUtils.getInstance().put(APP_GOODS_ID, goodsInfo.getId());
+                SPUtils.getInstance().put(APP_GOODS_NAME, goodsInfo.getName());
+                SPUtils.getInstance().put(APP_PACKING_NUM, goodsInfo.getNum());
                 T.showToast("将要扫描信息：(" + goodsInfo.toString() + ")");
             }
 
@@ -189,9 +129,7 @@ public class SettingActivity extends BaseActivity {
                 T.showToast("选择信息为1：(" + parent + ")");
             }
         });
-        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-
+        mBtnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -202,34 +140,6 @@ public class SettingActivity extends BaseActivity {
                 SPUtils.getInstance().put(APP_LANGUAGE, isChecked);
             }
         });
-    }
-
-    private void getGoodsData() {
-        String url = "https://" + SPUtils.getInstance().get(APP_DB, "") + "/api" +
-                ".php/goods";
-        OkHttpUtils
-                .get()
-                .url(url)
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        Log.d(TAG, "onError: " + call);
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        SPUtils.getInstance().put(APP_GOODS, response);
-                        Log.d(TAG, "onResponse: " + response);
-                        Gson gson = new Gson();
-                        GoodsRes res = gson.fromJson(response, GoodsRes.class);
-
-                        Intent intent = new Intent(SettingActivity.this, SettingActivity.class);
-                        startActivity(intent);
-                        Log.d(TAG, "onResponse: res" + res.getData());
-                    }
-                });
-
     }
 
     public class AppListAdapter extends BaseAdapter {
@@ -286,83 +196,51 @@ public class SettingActivity extends BaseActivity {
         }
     }
 
-
-/*    public class AppAsyncTask extends AsyncTask<Void, Integer, String> {
-
-        // 新进程处理
-        @Override
-        protected String doInBackground(Void... params) {
-            String url = "https://" + SPUtils.getInstance().get(APP_DB, "") + "/api" +
-                    ".php/goods";
-            return request(url);
-        }
-
-        // 请求成功
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            GoodsResult goodsResult = new GoodsResult();
-            try {
-                JSONObject jsonObject = new JSONObject(result);
-                SPUtils.getInstance().put(APP_GOODS, result);
-                int status = jsonObject.getInt("status");
-                String message = jsonObject.getString("message");
-                goodsResult.setStatus(status);
-                goodsResult.setMessage(message);
-                List<Goods> goodsInfos = new ArrayList<>();
-                JSONArray dataArray = jsonObject.getJSONArray("data");
-                for (int i = 0; i < dataArray.length(); i++) {
-                    Goods goodsInfo = new Goods();
-                    JSONObject tempJsonObject = (JSONObject) dataArray.get(i);
-                    goodsInfo.setId(tempJsonObject.getInt("id"));
-                    goodsInfo.setName(tempJsonObject.getString("name"));
-                    goodsInfo.setNum(tempJsonObject.getInt("num"));
-                    goodsInfos.add(goodsInfo);
+    @OnClick({R.id.app_save})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.app_save:
+                if (!NetworkUtil.isNetworkAvailable(SettingActivity.this)) {
+                    T.showToast("请在有网络的情况下使用此按钮。");
+                    return;
                 }
-                goodsResult.setGoodsInfo(goodsInfos);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
-                    + "</font>";
-            appPackingNum.setText(Html.fromHtml(str));
-            spinner.setAdapter(new AppListAdapter(SettingActivity.this, goodsResult.getGoodsInfo
-                    ()));
-            spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
-        }
-
-
-        // http 请求
-        private String request(String urlString) {
-            try {
-                URL url = new URL(urlString);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setConnectTimeout(30000);
-                connection.setRequestMethod("GET");  // GET POST
-                connection.connect();
-                int responseCode = connection.getResponseCode();
-                String responseMessage = connection.getResponseMessage();
-                String result = null;
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStreamReader inputStreamReader = new InputStreamReader(connection
-                            .getInputStream());
-                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(line);
+                // 当按钮点击时调用
+                String db = appDb.getText().toString();
+                SPUtils.getInstance().put(APP_DB, db);
+                mBtnSave.setText(R.string.app_update);
+                T.showToast("数据库被设置为(" + db + ")");
+                // 获取数据
+                mGoodsBiz.goodsList(new CommonCallback<List<Goods>>() {
+                    @Override
+                    public void onError(Exception e) {
+                        T.showToast(e.getMessage());
                     }
-                    result = stringBuilder.toString();
-                } else {
-                    // TODO:
-                }
-                return result;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
+
+                    @Override
+                    public void onSuccess(List<Goods> response, String info) {
+                        Log.d(TAG, "onSuccess: " + response);
+                        try {
+                            JSONArray jsonArray = new JSONArray();
+                            JSONObject tmpObj;
+                            for (int i = 0; i < response.size(); i++) {
+                                tmpObj = new JSONObject();
+                                tmpObj.put("id", (int) response.get(i).getId());
+                                tmpObj.put("name", response.get(i).getName());
+                                tmpObj.put("num", response.get(i).getNum());
+                                jsonArray.put(tmpObj);
+                                tmpObj = null;
+                            }
+                            String goods = jsonArray.toString();
+                            SPUtils.getInstance().put(APP_GOODS, goods);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Intent intent = new Intent(SettingActivity.this, SettingActivity.class);
+                        startActivity(intent);
+                    }
+                });
+                break;
         }
-    }*/
+    }
 
 }

@@ -49,15 +49,29 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static java.lang.Thread.sleep;
 
 public class MainActivity extends BaseActivity {
 
+    @BindView(R.id.scan_result)//显示结果区域
+            EditText showScanResult;
+    @BindView(R.id.app_curr_code) // 当前装箱产品
+            TextView appCurr;
+    @BindView(R.id.app_success_box) // 当前装成功箱数
+            TextView appScuess;
+    @BindView(R.id.app_setting) // 设置
+            Button btnSet;
+    @BindView(R.id.app_upload) //上传
+            Button btnUp;
+    @BindView(R.id.app_delete) //上传
+            Button appDelete;
+
     private final static String SCAN_ACTION = ScanManager.ACTION_DECODE;//default action
     // private final String APP_PACKING_SUCCESS_NUM = "app_packing_success_num";
-    private EditText showScanResult;
-    private Button btnSet; //系统设置
-    private Button btnUp; // 上传
+
     private Vibrator mVibrator;
     private ScanManager mScanManager;
     private SoundPool soundpool = null;
@@ -68,8 +82,6 @@ public class MainActivity extends BaseActivity {
     private boolean isUse = false;
     private boolean isScaning = false;
 
-    private TextView appScuess;
-    private TextView appCurr;
     private ArrayList<Object> codeInfos = new ArrayList<>();
     private String appPackingGoods;
     private String appCurrBox;
@@ -79,7 +91,6 @@ public class MainActivity extends BaseActivity {
     private ProgressDialog progressDialog;
     private int scanNum = 0;
     private String Imei = "";
-    private View appDelete;
     private static final String TAG = "MainActivity-app";
 
 
@@ -254,7 +265,7 @@ public class MainActivity extends BaseActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         Imei = TelephonyMgr.getDeviceId();
         // 初始化视图
@@ -467,8 +478,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initView() {
-
-        showScanResult = (EditText) findViewById(R.id.scan_result); //显示结果区域
+        builder = new AlertDialog.Builder(this);
+        progressDialog = new ProgressDialog(MainActivity.this);
+/*        showScanResult = (EditText) findViewById(R.id.scan_result); //显示结果区域
 
         // 显示按钮
         appCurr = (TextView) findViewById(R.id.app_curr_code); // 当前装箱产品
@@ -476,10 +488,9 @@ public class MainActivity extends BaseActivity {
 
         btnSet = (Button) findViewById(R.id.app_setting); // 设置
         btnUp = (Button) findViewById(R.id.app_upload); //上传
-        builder = new AlertDialog.Builder(this);
-        progressDialog = new ProgressDialog(MainActivity.this);
 
-        appDelete = (Button) findViewById(R.id.app_delete);
+
+        appDelete = (Button) findViewById(R.id.app_delete);*/
     }
 
     /**

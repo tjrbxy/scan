@@ -1,6 +1,7 @@
 package com.alixlp.scan.net;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.alixlp.scan.utils.GsonUtil;
 import com.zhy.http.okhttp.callback.StringCallback;

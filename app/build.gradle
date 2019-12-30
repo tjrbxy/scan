@@ -34,4 +34,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     // 开关插件
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
+    // @BindView
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }
