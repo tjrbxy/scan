@@ -1,6 +1,6 @@
 package com.alixlp.scan.res;
 
-import com.alixlp.scan.Goods;
+import com.alixlp.scan.json.Goods;
 
 import java.util.ArrayList;
 import java.util.List;
