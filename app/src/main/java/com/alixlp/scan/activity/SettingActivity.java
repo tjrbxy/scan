@@ -24,9 +24,9 @@ import com.alixlp.scan.R;
 import com.alixlp.scan.biz.GoodsBiz;
 import com.alixlp.scan.json.Goods;
 import com.alixlp.scan.net.CommonCallback;
+import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.alixlp.scan.utils.NetworkUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

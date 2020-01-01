@@ -28,9 +28,9 @@ import android.widget.TextView;
 import com.alixlp.scan.R;
 import com.alixlp.scan.biz.CodeBiz;
 import com.alixlp.scan.net.CommonCallback;
+import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.alixlp.scan.utils.NetworkUtil;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -51,8 +51,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static java.lang.Thread.sleep;
 
 public class MainActivity extends BaseActivity {
 
