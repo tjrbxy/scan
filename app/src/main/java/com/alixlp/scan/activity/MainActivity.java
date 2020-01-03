@@ -51,6 +51,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
 
@@ -263,6 +264,7 @@ public class MainActivity extends BaseActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_main);
+        // 绑定ID
         ButterKnife.bind(this);
         TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         Imei = TelephonyMgr.getDeviceId();
@@ -285,42 +287,6 @@ public class MainActivity extends BaseActivity {
 
     // 事件
     private void initEvent() {
-        // 点击设置按钮跳转到系统设置页面
-        btnSet.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //创建一个Intent对象
-                Intent intent = new Intent();
-                //调用setClass方法指定启动某一个Activity
-                intent.setClass(MainActivity.this, SettingActivity.class);
-                //调用startActivity
-                startActivity(intent);
-            }
-        });
-        // 上传按钮事件
-        btnUp.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // 判断网络是否可用
-                boolean networkAvailable = NetworkUtil.isNetworkAvailable(MainActivity.this);
-                if (!networkAvailable) {
-                    T.showToast("网络不可用!");
-                    return;
-                }
-                if (checkFile()) {
-                    T.showToast("没有要上传的文件");
-                    return;
-                }
-                String db = (String) SPUtils.getInstance().get(APP_DB, "");
-                if (db.length() == 0) {
-                    T.showToast("站点配置为空！");
-                    return;
-                }
-                showDialogMsg();
-            }
-        });
-
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -360,53 +326,6 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 });
-/*                mCodeBiz.uploadFile(Imei, "name", new File(path + "/goods.txt"), new
-                        CommonCallback<List>() {
-                            @Override
-                            public void onError(Exception e) {
-                                stopLoadingProgress();
-                                T.showToast(e.getMessage());
-                            }
-
-                            @Override
-                            public void onSuccess(List response, String info) {
-                                stopLoadingProgress();
-                                T.showToast("备份文件成功" + info);
-                                // 处理服务器数据
-                                startLoadingProgress();
-                                mCodeBiz.uploadInsertCode(info, new CommonCallback<List>() {
-                                    @Override
-                                    public void onError(Exception e) {
-                                        stopLoadingProgress();
-                                        T.showToast(e.getMessage());
-                                    }
-
-                                    @Override
-                                    public void onSuccess(List response, String info) {
-                                        stopLoadingProgress();
-                                        T.showToast(info);
-                                        //重置已扫箱数为0
-                                        T.showToast("数据全部上传完成。");
-                                        SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, 0);
-                                        appScuess.setText("已完成箱数：0 箱");
-
-                                        progressDialog.dismiss();
-                                        File file = new File(path + "/goods.txt");
-                                        if (file.exists()) {
-                                            Date date = new Date();
-                                            SimpleDateFormat ft = new SimpleDateFormat
-                                                    ("yyyyMMdd-HH-mm-ss");
-                                            Log.d(TAG, "onCreate: " + ft.format(date));
-                                            File newfile = new File(path + "/goods-" + ft.format
-                                                    (date) +
-                                                    ".txt");
-                                            Log.d(TAG, "run: " + newfile);
-                                            file.renameTo(newfile);
-                                        }
-                                    }
-                                });
-                            }
-                        });*/
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -417,7 +336,7 @@ public class MainActivity extends BaseActivity {
         });
 
         // 删除最后一个码
-        appDelete.setOnClickListener(new OnClickListener() {
+/*        appDelete.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId,
@@ -443,7 +362,7 @@ public class MainActivity extends BaseActivity {
 
 
             }
-        });
+        });*/
     }
 
 
@@ -478,17 +397,6 @@ public class MainActivity extends BaseActivity {
     private void initView() {
         builder = new AlertDialog.Builder(this);
         progressDialog = new ProgressDialog(MainActivity.this);
-/*        showScanResult = (EditText) findViewById(R.id.scan_result); //显示结果区域
-
-        // 显示按钮
-        appCurr = (TextView) findViewById(R.id.app_curr_code); // 当前装箱产品
-        appScuess = (TextView) findViewById(R.id.app_success_box); // 当前装成功箱数
-
-        btnSet = (Button) findViewById(R.id.app_setting); // 设置
-        btnUp = (Button) findViewById(R.id.app_upload); //上传
-
-
-        appDelete = (Button) findViewById(R.id.app_delete);*/
     }
 
     /**
@@ -631,4 +539,61 @@ public class MainActivity extends BaseActivity {
         Log.d(TAG, "onKeyDown: " + keyCode);
         return super.onKeyDown(keyCode, event);
     }
+
+    @OnClick({R.id.app_setting, R.id.app_upload, R.id.app_delete})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            // 点击设置按钮跳转到系统设置页面
+            case R.id.app_setting:
+                //创建一个Intent对象
+                Intent intent = new Intent();
+                //调用setClass方法指定启动某一个Activity
+                intent.setClass(MainActivity.this, SettingActivity.class);
+                //调用startActivity
+                startActivity(intent);
+                break;
+            // 上传按钮事件
+            case R.id.app_upload:
+                // 判断网络是否可用
+                boolean networkAvailable = NetworkUtil.isNetworkAvailable(MainActivity.this);
+                if (!networkAvailable) {
+                    T.showToast("网络不可用!");
+                    return;
+                }
+                if (checkFile()) {
+                    T.showToast("没有要上传的文件");
+                    return;
+                }
+                String db = (String) SPUtils.getInstance().get(APP_DB, "");
+                if (db.length() == 0) {
+                    T.showToast("站点配置为空！");
+                    return;
+                }
+                showDialogMsg();
+                break;
+            // 删除最后一个码
+            case R.id.app_delete:
+                appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId,
+                        "[]");
+                JSONObject jsonObject = null;
+                codeInfos = new ArrayList<>();
+                String jsonStr = "";
+                try {
+                    jsonObject = new JSONObject(appPackingGoods);
+                    JSONArray dataArray = jsonObject.getJSONArray("data");
+                    for (int i = 0; i < dataArray.length() - 1; i++) {
+                        codeInfos.add(dataArray.getString(i));
+                    }
+                    jsonStr = new Gson().toJson(codeInfos);
+                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
+                            + "}");
+                    // 跳转
+                    startActivity(new Intent(MainActivity.this, MainActivity.class));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+    }
+
 }

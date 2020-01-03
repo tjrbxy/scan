@@ -1,11 +1,21 @@
 package com.alixlp.scan.biz;
 
+import android.util.Log;
+
 import com.alixlp.scan.utils.SPUtils;
 
-public class BaseBiz {
+class BaseBiz {
 
-    protected String APP_DB = "app_db";
-    protected final String API_URL = "https://" + SPUtils.getInstance().get(APP_DB, "");
+    private static final String TAG = "BaseBiz-app";
 
-    protected final String API = "https://api.masaic.net";
+    String APP_DB = "app_db";
+    String API_URL;
+
+    final String API;
+
+    {
+        API = "https://api.masaic.net";
+        API_URL = "https://" + SPUtils.getInstance().get(APP_DB, "");
+        Log.d(TAG, "instance initializer: " + API);
+    }
 }

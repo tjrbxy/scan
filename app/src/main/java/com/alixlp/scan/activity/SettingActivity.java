@@ -77,16 +77,14 @@ public class SettingActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int goodsId = (int) SPUtils.getInstance().get(APP_GOODS_ID, 0);
-        switch (item.getItemId()) {
-            case R.id.app_empty:
-                Log.d(TAG, "onOptionsItemSelected: " + APP_CURR_BOX + goodsId);
-                SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
-                SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
-                SPUtils.getInstance().put(APP_BOX_UN, "");
-                T.showToast("数据已清空");
-                Intent intent = new Intent(SettingActivity.this, MainActivity.class);
-                startActivity(intent);
-                break;
+        if (item.getItemId() == R.id.app_empty) {
+            Log.d(TAG, "onOptionsItemSelected: " + APP_CURR_BOX + goodsId);
+            SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
+            SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
+            SPUtils.getInstance().put(APP_BOX_UN, "");
+            T.showToast("数据已清空");
+            Intent intent = new Intent(SettingActivity.this, MainActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -214,23 +212,22 @@ public class SettingActivity extends BaseActivity {
                     @Override
                     public void onError(Exception e) {
                         T.showToast(e.getMessage());
+                        return;
                     }
-
                     @Override
                     public void onSuccess(List<Goods> response, String info) {
-                        Log.d(TAG, "onSuccess: " + response);
                         try {
                             JSONArray jsonArray = new JSONArray();
                             JSONObject tmpObj;
                             for (int i = 0; i < response.size(); i++) {
                                 tmpObj = new JSONObject();
-                                tmpObj.put("id", (int) response.get(i).getId());
+                                tmpObj.put("id", response.get(i).getId());
                                 tmpObj.put("name", response.get(i).getName());
                                 tmpObj.put("num", response.get(i).getNum());
                                 jsonArray.put(tmpObj);
-                                tmpObj = null;
                             }
                             String goods = jsonArray.toString();
+                            // 设置商品
                             SPUtils.getInstance().put(APP_GOODS, goods);
                         } catch (JSONException e) {
                             e.printStackTrace();
