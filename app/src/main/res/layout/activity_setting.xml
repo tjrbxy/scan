@@ -21,10 +21,10 @@
 
         <EditText
             android:id="@+id/app_db"
-            android:minLines="1"
-            android:inputType="text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:minLines="1" />
     </LinearLayout>
 
     <Button
@@ -71,17 +71,34 @@
             android:text="装箱数量：0" />
     </LinearLayout>
 
-
-    <Switch
-        android:id="@+id/app_switch"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/padding_small"
-        android:checked="false"
-        android:text="@string/app_tips"
-        android:textOff="关"
-        android:textOn="开"
-        android:textSize="14sp" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
+            android:text="@string/app_tips" />
+
+        <com.suke.widget.SwitchButton
+            android:id="@+id/app_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!--    <Switch
+            android:id="@+id/app_switch1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_small"
+            android:checked="false"
+            android:text="@string/app_tips"
+            android:textOff="关"
+            android:textOn="开"
+            android:textSize="14sp" />-->
 
     <TextView
         android:layout_width="match_parent"
@@ -94,14 +111,14 @@
 
 
     <!--<Button-->
-        <!--android:id="@+id/app_empty"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_margin="@dimen/padding_small"-->
-        <!--android:background="#FE9834"-->
-        <!--android:text="@string/app_empty"-->
-        <!--android:textColor="#FFFFFF"-->
-        <!--android:textSize="14sp" />-->
+    <!--android:id="@+id/app_empty"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_margin="@dimen/padding_small"-->
+    <!--android:background="#FE9834"-->
+    <!--android:text="@string/app_empty"-->
+    <!--android:textColor="#FFFFFF"-->
+    <!--android:textSize="14sp" />-->
 
     <TextView
         android:layout_width="match_parent"

@@ -29,6 +29,7 @@ import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.suke.widget.SwitchButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,7 +53,8 @@ public class SettingActivity extends BaseActivity {
     @BindView(R.id.app_packing_num)
     TextView appPackingNum;
     @BindView(R.id.app_switch)
-    Switch mBtnSwitch;
+    com.suke.widget.SwitchButton mBtnSwitch;
+    // Switch mBtnSwitch;
     private static final String TAG = "SettingActivity-app";
 
     private GoodsBiz mGoodsBiz = new GoodsBiz();
@@ -107,6 +109,7 @@ public class SettingActivity extends BaseActivity {
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
         }
         mBtnSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
+        // mBtnSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
         // 选择框
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -127,7 +130,19 @@ public class SettingActivity extends BaseActivity {
                 T.showToast("选择信息为1：(" + parent + ")");
             }
         });
-        mBtnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mBtnSwitch.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                //TODO do your job
+                if (isChecked) {
+                    T.showToast("您选择了粤语提示！");
+                } else {
+                    T.showToast("使用默认普通话提示！");
+                }
+                SPUtils.getInstance().put(APP_LANGUAGE, isChecked);
+            }
+        });
+/*        mBtnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -137,7 +152,7 @@ public class SettingActivity extends BaseActivity {
                 }
                 SPUtils.getInstance().put(APP_LANGUAGE, isChecked);
             }
-        });
+        });*/
     }
 
     public class AppListAdapter extends BaseAdapter {
@@ -214,6 +229,7 @@ public class SettingActivity extends BaseActivity {
                         T.showToast(e.getMessage());
                         return;
                     }
+
                     @Override
                     public void onSuccess(List<Goods> response, String info) {
                         try {
