@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:text="删除当前最后一个码" />
+        android:text="@string/app_delete" />
 
     <EditText
         android:id="@+id/scan_result"

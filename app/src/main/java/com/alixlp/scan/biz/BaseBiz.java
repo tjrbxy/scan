@@ -11,10 +11,9 @@ class BaseBiz {
     String APP_DB = "app_db";
     String API_URL;
 
-    final String API;
+    final String API = "https://api.masaic.net";
 
     {
-        API = "https://api.masaic.net";
         API_URL = "https://" + SPUtils.getInstance().get(APP_DB, "");
         Log.d(TAG, "instance initializer: " + API);
     }

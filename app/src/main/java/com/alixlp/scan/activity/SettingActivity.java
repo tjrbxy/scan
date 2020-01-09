@@ -24,6 +24,7 @@ import com.alixlp.scan.R;
 import com.alixlp.scan.biz.GoodsBiz;
 import com.alixlp.scan.json.Goods;
 import com.alixlp.scan.net.CommonCallback;
+import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
@@ -100,29 +101,29 @@ public class SettingActivity extends BaseActivity {
         }
         String jsonGoods = (String) SPUtils.getInstance().get(APP_GOODS, "");
         if (jsonGoods.length() > 10) {
-            List<Goods> goods = new Gson().fromJson(jsonGoods, new TypeToken<List<Goods>>() {
+
+            List<Goods> goods = GsonUtil.getGson().fromJson(jsonGoods, new TypeToken<List<Goods>>() {
             }.getType());
-            String str = "装箱数:<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
+            String str = "每箱的数量 :<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
                     + "</font>";
             appPackingNum.setText(Html.fromHtml(str));
             spinner.setAdapter(new AppListAdapter(SettingActivity.this, goods));
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
         }
         mBtnSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
-        // mBtnSwitch.setChecked((Boolean) SPUtils.getInstance().get(APP_LANGUAGE, false));
         // 选择框
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Goods goodsInfo = (Goods) parent.getItemAtPosition(position);
-                String str = "装箱数:<font color =red >" + goodsInfo.getNum() + "</font>";
+                String str = "每箱的数量 :<font color =red >" + goodsInfo.getNum() + "</font>";
                 appPackingNum.setText(Html.fromHtml(str));
                 SPUtils.getInstance().put(APP_GOODS_KEY, position);
                 SPUtils.getInstance().put(APP_GOODS_ID, goodsInfo.getId());
                 SPUtils.getInstance().put(APP_GOODS_NAME, goodsInfo.getName());
                 SPUtils.getInstance().put(APP_PACKING_NUM, goodsInfo.getNum());
-                T.showToast("将要扫描信息：(" + goodsInfo.toString() + ")");
+                T.showToast("选中信息：(" + goodsInfo.getName() + ")");
             }
 
             @Override
@@ -135,24 +136,14 @@ public class SettingActivity extends BaseActivity {
             public void onCheckedChanged(SwitchButton view, boolean isChecked) {
                 //TODO do your job
                 if (isChecked) {
-                    T.showToast("您选择了粤语提示！");
+                    T.showToast("粤语已开启！");
                 } else {
-                    T.showToast("使用默认普通话提示！");
+                    T.showToast("粤语已关闭！");
                 }
                 SPUtils.getInstance().put(APP_LANGUAGE, isChecked);
             }
         });
-/*        mBtnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    T.showToast("您选择了粤语提示！");
-                } else {
-                    T.showToast("使用默认普通话提示！");
-                }
-                SPUtils.getInstance().put(APP_LANGUAGE, isChecked);
-            }
-        });*/
+
     }
 
     public class AppListAdapter extends BaseAdapter {

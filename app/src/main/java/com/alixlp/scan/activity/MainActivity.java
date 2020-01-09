@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.alixlp.scan.R;
 import com.alixlp.scan.biz.CodeBiz;
 import com.alixlp.scan.net.CommonCallback;
+import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
@@ -166,7 +167,7 @@ public class MainActivity extends BaseActivity {
                 codeInfos = new ArrayList<>();
                 if (appPackingGoods.length() < 1) {
                     codeInfos.add(barcodeStr);
-                    jsonStr = new Gson().toJson(codeInfos);
+                    jsonStr = GsonUtil.getGson().toJson(codeInfos);
                     SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
                             + "}");
                     scanNum++;
@@ -190,7 +191,7 @@ public class MainActivity extends BaseActivity {
 
                         codeInfos.add(barcodeStr);
                         scanNum = codeInfos.size();
-                        jsonStr = new Gson().toJson(codeInfos);
+                        jsonStr = GsonUtil.getGson().toJson(codeInfos);
                         SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" +
                                 jsonStr + "}");
                     } catch (JSONException e) {
@@ -334,35 +335,6 @@ public class MainActivity extends BaseActivity {
                 T.showToast("已经取消，不会对数据进行任何处理！");
             }
         });
-
-        // 删除最后一个码
-/*        appDelete.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId,
-                        "[]");
-                JSONObject jsonObject = null;
-                codeInfos = new ArrayList<>();
-                String jsonStr = "";
-                try {
-                    jsonObject = new JSONObject(appPackingGoods);
-                    JSONArray dataArray = jsonObject.getJSONArray("data");
-                    for (int i = 0; i < dataArray.length() - 1; i++) {
-                        codeInfos.add(dataArray.getString(i));
-                    }
-                    jsonStr = new Gson().toJson(codeInfos);
-                    Log.d(TAG, "scanNum: " + jsonStr);
-                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
-                            + "}");
-                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                    startActivity(intent);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        });*/
     }
 
 
@@ -584,7 +556,7 @@ public class MainActivity extends BaseActivity {
                     for (int i = 0; i < dataArray.length() - 1; i++) {
                         codeInfos.add(dataArray.getString(i));
                     }
-                    jsonStr = new Gson().toJson(codeInfos);
+                    jsonStr = GsonUtil.getGson().toJson(codeInfos);
                     SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
                             + "}");
                     // 跳转
