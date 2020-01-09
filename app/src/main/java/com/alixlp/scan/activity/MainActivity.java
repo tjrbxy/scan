@@ -18,7 +18,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -32,7 +31,6 @@ import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;

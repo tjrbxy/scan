@@ -5,7 +5,11 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+/**
+ *
+ */
 public class BaseActivity extends Activity {
+
     protected final String APP_LANGUAGE = "app_switch"; // 语言选择
     protected final String APP_CURR_BOX = "app_curr_box"; // 当前箱码
     protected final String APP_PACKING_GOODS = "app_packing_goods"; // 装箱商品

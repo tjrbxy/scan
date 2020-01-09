@@ -13,11 +13,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.alixlp.scan.R;
@@ -28,7 +26,6 @@ import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;
 import com.alixlp.scan.utils.T;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.suke.widget.SwitchButton;
 
