@@ -1,10 +1,7 @@
 package com.alixlp.scan.biz;
 
-import android.util.Log;
-
 import com.alixlp.scan.json.Goods;
-import com.alixlp.scan.net.CommonCallback;
-import com.alixlp.scan.utils.SPUtils;
+import com.alixlp.scan.utils.CommonCallback;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.List;
@@ -18,15 +15,15 @@ public class GoodsBiz extends BaseBiz {
     }
 
     /**
+     *
      * @param commonCallback
      */
     public void goodsList(CommonCallback<List<Goods>> commonCallback) {
 
-        Log.d(TAG, "goodsList: " + this.API_URL);
-        String url = "https://" + SPUtils.getInstance().get(this.APP_DB, "") + "/api.php/goods";
         OkHttpUtils
                 .post()
-                .url(url)
+                .url(this.API_URL + "/api.php/goods")
+                .tag(this)
                 .build()
                 .execute(commonCallback);
     }

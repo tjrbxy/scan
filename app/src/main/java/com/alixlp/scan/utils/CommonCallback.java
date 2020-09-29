@@ -1,9 +1,7 @@
-package com.alixlp.scan.net;
+package com.alixlp.scan.utils;
 
 import android.util.Log;
-import android.widget.Toast;
 
-import com.alixlp.scan.utils.GsonUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONException;

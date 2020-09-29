@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.alixlp.scan.R;
 import com.alixlp.scan.biz.GoodsBiz;
 import com.alixlp.scan.json.Goods;
-import com.alixlp.scan.net.CommonCallback;
+import com.alixlp.scan.utils.CommonCallback;
 import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
 import com.alixlp.scan.utils.SPUtils;

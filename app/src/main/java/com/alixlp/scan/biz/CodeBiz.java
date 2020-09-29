@@ -1,8 +1,7 @@
 package com.alixlp.scan.biz;
 
-import android.util.Log;
-
-import com.alixlp.scan.net.CommonCallback;
+import com.alixlp.scan.utils.CommonCallback;
+import com.alixlp.scan.utils.ConfigUtils;
 import com.alixlp.scan.utils.SPUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -26,12 +25,12 @@ public class CodeBiz extends BaseBiz {
      * @param commonCallback
      */
     public void uploadCode(String device, File path, CommonCallback<List> commonCallback) {
-        String url = this.API + "/api/v1/code";
+
         Map header = new HashMap();
         header.put("APPID", (String) SPUtils.getInstance().get(this.APP_DB, ""));
         OkHttpUtils
                 .post()
-                .url(url)
+                .url(ConfigUtils.API + "/api/v1/code")
                 .headers(header)
                 .addParams("device", device)
                 .addFile("goods", "goods.txt", path)
