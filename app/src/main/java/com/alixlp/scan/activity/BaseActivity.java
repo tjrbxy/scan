@@ -5,9 +5,12 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  *
  */
+@Slf4j
 public class BaseActivity extends Activity {
 
     protected final String APP_LANGUAGE = "app_switch"; // 语言选择

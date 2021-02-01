@@ -19,8 +19,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alixlp.scan.R;
+import com.alixlp.scan.bean.Goods;
 import com.alixlp.scan.biz.GoodsBiz;
-import com.alixlp.scan.json.Goods;
 import com.alixlp.scan.utils.CommonCallback;
 import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
@@ -38,8 +38,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class SettingActivity extends BaseActivity {
 
     @BindView(R.id.app_save)

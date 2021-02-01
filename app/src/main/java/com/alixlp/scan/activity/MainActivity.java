@@ -51,7 +51,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MainActivity extends BaseActivity {
 
     @BindView(R.id.scan_result)//显示结果区域
