@@ -77,11 +77,10 @@ public class SettingActivity extends BaseActivity {
     // 菜单选择按钮事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int goodsId = (int) SPUtils.getInstance().get(APP_GOODS_ID, 0);
         if (item.getItemId() == R.id.app_empty) {
-            Log.d(TAG, "onOptionsItemSelected: " + APP_CURR_BOX + goodsId);
-            SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
-            SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
+            Log.d(TAG, "onOptionsItemSelected: " + APP_CURR_BOX +  "_" + goodsInfo.getId());
+            SPUtils.getInstance().put(APP_CURR_BOX + "_" + goodsInfo.getId(), "");
+            SPUtils.getInstance().put(APP_PACKING_GOODS + "_" + goodsInfo.getId(), "");
             SPUtils.getInstance().put(APP_BOX_UN, "");
             T.showToast("数据已清空");
             Intent intent = new Intent(SettingActivity.this, MainActivity.class);
@@ -91,6 +90,7 @@ public class SettingActivity extends BaseActivity {
     }
 
     private void initSet() {
+
         // 获取本地缓存
         String dbStr = (String) SPUtils.getInstance().get(APP_DB, "demo.masaic.net");
         if (dbStr.length() > 1) {
@@ -99,11 +99,9 @@ public class SettingActivity extends BaseActivity {
         }
         String jsonGoods = (String) SPUtils.getInstance().get(APP_GOODS_LIST, "");
         if (jsonGoods.length() > 10) {
-
             List<Goods> goods = GsonUtil.getGson().fromJson(jsonGoods, new TypeToken<List<Goods>>() {
             }.getType());
-            String str = "每箱的数量 :<font color =red >" + SPUtils.getInstance().get(APP_PACKING_NUM, 0)
-                    + "</font>";
+            String str = "每箱的数量：<font color =red >" + goodsInfo.getNum()  + "</font>";
             appPackingNum.setText(Html.fromHtml(str));
             spinner.setAdapter(new AppListAdapter(SettingActivity.this, goods));
             spinner.setSelection((Integer) SPUtils.getInstance().get(APP_GOODS_KEY, 0), true);
@@ -116,11 +114,11 @@ public class SettingActivity extends BaseActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Goods goodsInfo = (Goods) parent.getItemAtPosition(position);
                 Log.i(TAG,"选中商品信息：" + goodsInfo.toString());
-                String str = "每箱的数量 :<font color =red >" + goodsInfo.getNum() + "</font>";
+                String str = "每箱的数量：<font color =red > " + goodsInfo.getNum() + "</font>";
                 appPackingNum.setText(Html.fromHtml(str));
                 SPUtils.getInstance().put(APP_GOODS_KEY, position);
-                SPUtils.getInstance().put(APP_GOODS_ID, goodsInfo.getId());
-                SPUtils.getInstance().put(APP_GOODS_NAME, goodsInfo.getName());
+                // SPUtils.getInstance().put(APP_GOODS_ID, goodsInfo.getId());
+                // SPUtils.getInstance().put(APP_GOODS_NAME, goodsInfo.getName());
                 SPUtils.getInstance().put(APP_PACKING_NUM, goodsInfo.getNum());
                 // 保存当前选中的商品
                 SPUtils.getInstance().put(APP_GOODS_INFO,gson.toJson(goodsInfo));
@@ -232,6 +230,7 @@ public class SettingActivity extends BaseActivity {
                     public void onSuccess(List<Goods> response, String info) {
                         // 设置商品
                         SPUtils.getInstance().put(APP_GOODS_LIST, gson.toJson(response));
+                        finish();
                         Intent intent = new Intent(SettingActivity.this, SettingActivity.class);
                         startActivity(intent);
                     }

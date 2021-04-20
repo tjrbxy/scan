@@ -26,7 +26,6 @@ import android.widget.TextView;
 
 import com.alixlp.scan.R;
 import com.alixlp.scan.biz.CodeBiz;
-import com.alixlp.scan.entity.Goods;
 import com.alixlp.scan.utils.CommonCallback;
 import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
@@ -47,6 +46,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -88,7 +88,6 @@ public class MainActivity extends BaseActivity {
     private String appPackingGoods;
     private String appCurrBox;
     private File path = Environment.getExternalStorageDirectory();
-    private int goodsId;
     private AlertDialog.Builder builder;
     private ProgressDialog progressDialog;
     private int scanNum = 0;
@@ -101,7 +100,6 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            // TODO Auto-generated method stub
             isScaning = false;
             soundpool.play(soundid, 1, 1, 0, 0, 1);
             // 震动
@@ -111,11 +109,14 @@ public class MainActivity extends BaseActivity {
 
             int barcodelen = intent.getIntExtra(ScanManager.BARCODE_LENGTH_TAG, 0); // 码的长度
             barcodeStr = new String(barcode, 0, barcodelen); // 扫描结果
+            Log.i(TAG, "扫描内容: " + barcodeStr);
+            if (goodsInfo.getId() == 0){
+                T.showToast("请配置数据库，选择商品!");
+                return;
+            }
             // 兼容二维码url
             if (barcodeStr.indexOf("?f=") != -1) {
-                Log.i(TAG, "onReceive: " + barcodeStr);
                 // 加入验证
-                String AppDb = (String) SPUtils.getInstance().get(APP_DB, "");
                 if (barcodeStr.indexOf((String) SPUtils.getInstance().get(APP_DB, "")) == -1) {
                     soundpool.play(outsideSoundid, 1, 1, 0, 0, 1);
                     return;
@@ -129,27 +130,25 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
             }
-            goodsId = (Integer) SPUtils.getInstance().get(APP_GOODS_ID, 0); // 当前扫描商品id
-            appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX + goodsId, ""); // 外箱码
-            appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId, "");
+            appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX + "_" + goodsInfo.getId(), ""); // 外箱码
+            appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + "_" + goodsInfo.getId(), "");
             // 保存箱码
             if (barcodelen == 6 && appCurrBox.length() == 0) {
                 appCurrBox = barcodeStr;
+                // 已扫描箱码
                 String app_box_un = (String) SPUtils.getInstance().get(APP_BOX_UN, "");
-                Log.i(TAG, "onReceive: indexOf" + app_box_un.indexOf(appCurrBox) + ',' +
-                        app_box_un);
+                Log.i(TAG, "外箱码：" + appCurrBox);
+                box.add(appCurrBox);
                 if (app_box_un.indexOf(appCurrBox) == -1) {
                     String f = (app_box_un.length() == 0) ? "" : String.valueOf(',');
                     // 保存扫入码的信息
                     SPUtils.getInstance().put(APP_BOX_UN, app_box_un + f + barcodeStr);
-
                     // 保存当前箱码
-                    SPUtils.getInstance().put(APP_CURR_BOX + goodsId, barcodeStr);
-
+                    SPUtils.getInstance().put(APP_CURR_BOX + "_" + goodsInfo.getId(), barcodeStr);
                     showScanResult.setText(barcodeStr + "\n");
                 } else {
+                    Log.i(TAG, "外箱码重复：" + appCurrBox);
                     soundpool.play(rcSoundid, 1, 1, 0, 0, 1);
-                    return;
                 }
                 return;
             }
@@ -166,73 +165,77 @@ public class MainActivity extends BaseActivity {
             // 扫产品码
             String jsonStr = "";
             if (barcodelen > 6 && appCurrBox.length() == 6) {
+                // 判断最近3箱是否重复
+                ArrayList<Object> limitCode = new ArrayList<>();
+                String json = (String) SPUtils.getInstance().get(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),"");
+                if (json.length() > 5 && json.indexOf(barcodeStr) != -1){
+                    Log.i(TAG, "最近三箱重复：" + barcodeStr );
+                    return;
+                }
                 codeInfos = new ArrayList<>();
                 if (appPackingGoods.length() < 1) {
                     codeInfos.add(barcodeStr);
                     jsonStr = GsonUtil.getGson().toJson(codeInfos);
-                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
-                            + "}");
+                    SPUtils.getInstance().put(APP_PACKING_GOODS + "_" + goodsInfo.getId(), jsonStr);
                     scanNum++;
                 } else {
-                    try {
-                        Boolean flag = false;
-                        JSONObject jsonObject = new JSONObject(appPackingGoods);
-                        JSONArray dataArray = jsonObject.getJSONArray("data");
-                        for (int i = 0; i < dataArray.length(); i++) {
-                            if (barcodeStr.equals(dataArray.getString(i))) {
-                                flag = true;
-                            } else {
-                                codeInfos.add(dataArray.getString(i));
-                            }
+                    Boolean flag = false;
+                    List list = gson.fromJson(appPackingGoods, List.class);
+                    Iterator<String> it = list.iterator();
+                    while(it.hasNext()){
+                        String x = it.next();
+                        if(x.equals( barcodeStr )){
+                            flag = true;
+                        }else{
+                            codeInfos.add(x);
                         }
-                        // 重复扫码提示
-                        if (flag) {
-                            soundpool.play(rSoundid, 1, 1, 0, 0, 1);
-                            return;
-                        }
-
-                        codeInfos.add(barcodeStr);
-                        scanNum = codeInfos.size();
-                        jsonStr = GsonUtil.getGson().toJson(codeInfos);
-                        SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" +
-                                jsonStr + "}");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
+                    // 重复扫码提示
+                    if (flag) {
+                        soundpool.play(rSoundid, 1, 1, 0, 0, 1);
+                        return;
+                    }
+                    codeInfos.add(barcodeStr);
+                    scanNum = codeInfos.size();
+                    jsonStr = GsonUtil.getGson().toJson(codeInfos);
+                    SPUtils.getInstance().put(APP_PACKING_GOODS + "_" + goodsInfo.getId(), jsonStr);
                 }
             }
-            Log.i(TAG, "onReceive: scanNum" + scanNum);
-            // app_packing_num
-            Integer packingNum = (Integer) SPUtils.getInstance().get(APP_PACKING_NUM, 0);
-            if (scanNum < packingNum && barcodelen == 6) {
+            if (scanNum < goodsInfo.getNum() && barcodelen == 6) {
                 soundpool.play(iSoundid, 1, 1, 0, 0, 1);
                 return;
             }
             // 显示扫描结果
-            if (scanNum == packingNum) {
+            if (scanNum == goodsInfo.getNum()) {
                 scanNum = 0;
                 for (int i = 0; i < codeInfos.size(); i++) {
-                    WriteStringToFile2(codeInfos.get(i) + "," + goodsId + "," + appCurrBox + "\n");
-                    Log.i(TAG, "onReceive: " + codeInfos.get(i) + "," + goodsId + "," + appCurrBox);
+                    WriteStringToFile2(codeInfos.get(i) + "," + "_" + goodsInfo.getId() + "," + appCurrBox + "\n");
                 }
-                Log.i(TAG, "onReceive: " + codeInfos);
-
-                SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
-                SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
+                SPUtils.getInstance().put(APP_CURR_BOX + "_" + goodsInfo.getId(), "");
+                SPUtils.getInstance().put(APP_PACKING_GOODS + "_" + goodsInfo.getId(), "");
                 int appSuccessNum = (int) SPUtils.getInstance().get(APP_PACKING_SUCCESS_NUM, 0);
                 SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, appSuccessNum + 1);
                 showScanResult.setText("");
                 appScuess.setText("已完成箱数：" + (appSuccessNum + 1) + " 箱");
+                Log.i(TAG, "装箱成功的商品：" +codeInfos.toString());
+                ArrayList<Object> objects = new ArrayList<>();
+                String json = (String) SPUtils.getInstance().get(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),"");
+                if (json.length() > 5){
+                    objects = gson.fromJson(json, ArrayList.class);
+                    if (objects.size() > 2){
+                        objects.remove(0);
+                    }
+                    Log.i(TAG, "当前存入的数量："+ objects.size() + objects.toString());
+                }
+                objects.add(codeInfos);
+                SPUtils.getInstance().put(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),gson.toJson(objects));
+                Log.i(TAG, "总码数: " + objects.toString());
                 soundpool.play(sSoundid, 1, 1, 0, 0, 1);
-
             } else {
                 showScanResult.setText(showScanResult.getText().toString() + barcodeStr + "\n");
             }
-            Log.i(TAG, "onReceive: app_packing_num" + packingNum);
-            appCurr.setText("当前装箱（" + SPUtils.getInstance().get(APP_GOODS_NAME, "") + "）：" +
-                    scanNum + "/" + packingNum);
-
-
+            appCurr.setText("当前装箱（" + goodsInfo.getName() + "）：" +
+                    scanNum + "/" + goodsInfo.getNum());
         }
 
     };
@@ -399,34 +402,25 @@ public class MainActivity extends BaseActivity {
 
     private void initData() {
         // 聚焦并显示光标
-        goodsId = (Integer) SPUtils.getInstance().get(APP_GOODS_ID, 0);
-        appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX + goodsId, "");
+        appCurrBox = (String) SPUtils.getInstance().get(APP_CURR_BOX + "_" + goodsInfo.getId(), "");
 // 已经完成装箱数量
         int appPackingSuccessNum = (int) SPUtils.getInstance().get(APP_PACKING_SUCCESS_NUM, 0);
         String result = appCurrBox.length() > 0 ? appCurrBox + "\n" : "";
-
-        appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId, "[]");
-
-        JSONObject jsonObject = null;
+        appPackingGoods = (String) SPUtils.getInstance()
+                .get(APP_PACKING_GOODS + "_" + goodsInfo.getId(), "");
         int num = 0;
-        try {
-            jsonObject = new JSONObject(appPackingGoods);
-            JSONArray dataArray = jsonObject.getJSONArray("data");
-            for (int i = 0; i < dataArray.length(); i++) {
-                result += dataArray.getString(i) + "\n";
+        if ( appPackingGoods.length() > 2){
+            List list = gson.fromJson(appPackingGoods, List.class);
+            Iterator<String> it = list.iterator();
+            while(it.hasNext()){
+                result += it.next() + "\n";
                 num++;
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
-
         showScanResult.setText(result);
         showScanResult.setFocusable(true);
         showScanResult.requestFocus();
-
-        Goods goods = gson.fromJson((String) SPUtils.getInstance().get(APP_GOODS_INFO, gson.toJson(new Goods())), Goods.class);
-        appCurr.setText("当前装箱（" + goods.getName() + "）：" + num +
-                "/" + goods.getNum());
+        appCurr.setText("当前装箱（" + goodsInfo.getName() + "）：" + num + "/" + goodsInfo.getNum());
         appScuess.setText("已完成箱数：" + appPackingSuccessNum + " 箱");
     }
 
@@ -463,11 +457,13 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
+        Log.i(TAG, "onPause: ");
         super.onPause();
         if (mScanManager != null) {
             mScanManager.stopDecode();
@@ -482,6 +478,7 @@ public class MainActivity extends BaseActivity {
      */
     @Override
     protected void onResume() {
+        Log.i(TAG, "onResume: ");
         super.onResume();
         // 设置数据
         initData();  // 加载数据
@@ -491,8 +488,6 @@ public class MainActivity extends BaseActivity {
         int[] idbuf = new int[]{PropertyID.WEDGE_INTENT_ACTION_NAME, PropertyID
                 .WEDGE_INTENT_DATA_STRING_TAG};
         String[] value_buf = mScanManager.getParameterString(idbuf);
-        Log.i(TAG, "-----value_buf-----" + value_buf);
-
         if (value_buf != null && value_buf[0] != null && !value_buf[0].equals("")) {
             filter.addAction(value_buf[0]);
         } else {
@@ -504,6 +499,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onStart() {
+        Log.i(TAG, "onStart: ");
         super.onStart();
     }
 
@@ -545,7 +541,7 @@ public class MainActivity extends BaseActivity {
                 break;
             // 删除最后一个码
             case R.id.app_delete:
-                appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + goodsId,
+                appPackingGoods = (String) SPUtils.getInstance().get(APP_PACKING_GOODS + "_" + goodsInfo.getId(),
                         "[]");
                 JSONObject jsonObject = null;
                 codeInfos = new ArrayList<>();
@@ -557,7 +553,7 @@ public class MainActivity extends BaseActivity {
                         codeInfos.add(dataArray.getString(i));
                     }
                     jsonStr = GsonUtil.getGson().toJson(codeInfos);
-                    SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "{\"data\":" + jsonStr
+                    SPUtils.getInstance().put(APP_PACKING_GOODS + "_" + goodsInfo.getId(), "{\"data\":" + jsonStr
                             + "}");
                     // 跳转
                     startActivity(new Intent(MainActivity.this, MainActivity.class));

@@ -1,6 +1,6 @@
-package com.alixlp.scan.utils;
+package com.alixlp.scan.config;
 
-public class  ConfigUtils {
+public class AppConfig {
 
     public static final String API = "https://api.masaic.net";
 

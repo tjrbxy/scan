@@ -1,7 +1,7 @@
 package com.alixlp.scan.biz;
 
+import com.alixlp.scan.config.AppConfig;
 import com.alixlp.scan.utils.CommonCallback;
-import com.alixlp.scan.utils.ConfigUtils;
 import com.alixlp.scan.utils.SPUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -30,7 +30,7 @@ public class CodeBiz extends BaseBiz {
         header.put("APPID", (String) SPUtils.getInstance().get(this.APP_DB, ""));
         OkHttpUtils
                 .post()
-                .url(ConfigUtils.API + "/api/v1/code")
+                .url(AppConfig.API + "/api/v1/code")
                 .headers(header)
                 .addParams("device", device)
                 .addFile("goods", "goods.txt", path)
