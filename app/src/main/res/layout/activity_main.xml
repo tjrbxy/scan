@@ -60,9 +60,9 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/padding_small"
             android:layout_weight="1"
-            android:background="#FE9834"
+            android:background="@color/bg"
             android:text="@string/app_setting"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="14sp" />
 
         <Button
@@ -73,7 +73,7 @@
             android:layout_weight="1"
             android:background="#3CBC2C"
             android:text="@string/app_upload"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="14sp" />
     </LinearLayout>
 

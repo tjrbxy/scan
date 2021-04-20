@@ -34,9 +34,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding_small"
         android:layout_marginBottom="@dimen/padding_small"
-        android:background="#3CBC2C"
+        android:background="@color/bg"
         android:text="@string/app_save"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textSize="14sp" />
 
     <LinearLayout
@@ -93,12 +93,23 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_small"
+        android:layout_marginBottom="@dimen/padding_small"
+        android:background="@color/bg"
+        android:text="@string/app_btn_back"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
-        android:text="温馨提示\n软硬件销售及报修\n电话：15905791993"
+        android:text="温馨提示\n软硬件销售及报修\n电话：15905791993(微信同号)"
         android:textColor="#AEAEAE"
         android:textSize="16sp" />
 

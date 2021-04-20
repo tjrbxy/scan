@@ -5,12 +5,11 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import lombok.extern.slf4j.Slf4j;
+import com.google.gson.Gson;
 
 /**
  *
  */
-@Slf4j
 public class BaseActivity extends Activity {
 
     protected final String APP_LANGUAGE = "app_switch"; // 语言选择
@@ -19,12 +18,15 @@ public class BaseActivity extends Activity {
     protected final String APP_BOX_UN = "app_box_un"; // 已扫入的外箱码
     protected final String APP_GOODS_ID = "app_goods_id"; // 商品ID
     protected final String APP_DB = "app_db"; // API
-    protected final String APP_GOODS = "goods"; // 商品信息
+    protected final String APP_GOODS_LIST = "goods_list"; // 商品列表信息
+    protected final String APP_GOODS_INFO = "goods_info";
     protected final String APP_PACKING_NUM = "app_packing_num"; //商品装箱数量
     protected final String APP_GOODS_KEY = "app_goods_key"; // 下拉商品对应的key
     protected final String APP_GOODS_NAME = "app_goods_name"; // 商品名称
     protected final String APP_PACKING_SUCCESS_NUM = "app_packing_success_num"; // 已完成箱数
     private ProgressDialog mLoadingDialog;
+
+    protected static Gson gson = new Gson();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

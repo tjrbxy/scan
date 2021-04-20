@@ -29,13 +29,14 @@
     <string name="scanner_reset_def_summary">扫描头出厂设置</string>
     <string name="scanner_toast">扫描头重置完成!</string>
     <string name="scanner_hint">对准条码，按设备上扫描键获取条码</string>
-    <string name="app_copyright">©masaic.net v1.1.1</string>
+    <string name="app_copyright">©masaic.net v1.1.2</string>
     <string name="app_setting">系统设置</string>
     <string name="app_upload">上传数据</string>
     <string name="app_save">保存设置</string>
     <string name="app_empty">清空当前箱数据</string>
     <string name="app_tips">粤语提示:</string>
-    <string name="app_update">新加商品点击更新</string>
+    <string name="app_update">连接数据库/获取最新产品列表</string>
     <string name="app_search">请在此输入箱码或者产品码搜索</string>
     <string name="app_delete">删除当前最后一个码</string>
+    <string name="app_btn_back">返回扫码界面</string>
 </resources>

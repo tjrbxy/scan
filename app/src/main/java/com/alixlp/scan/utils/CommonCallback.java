@@ -35,7 +35,7 @@ public abstract class CommonCallback<T> extends StringCallback {
 
     @Override
     public void onResponse(String response, int id) {
-        Log.d(TAG, "onResponse: " + response);
+        Log.i(TAG, "onResponse: " + response);
         try {
             JSONObject resp = new JSONObject(response);
             int code = resp.getInt("code");

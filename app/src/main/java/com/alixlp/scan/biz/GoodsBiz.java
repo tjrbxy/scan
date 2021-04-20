@@ -1,6 +1,7 @@
 package com.alixlp.scan.biz;
 
-import com.alixlp.scan.bean.Goods;
+
+import com.alixlp.scan.entity.Goods;
 import com.alixlp.scan.utils.CommonCallback;
 import com.zhy.http.okhttp.OkHttpUtils;
 

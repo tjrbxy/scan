@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.alixlp.scan.R;
 import com.alixlp.scan.biz.CodeBiz;
+import com.alixlp.scan.entity.Goods;
 import com.alixlp.scan.utils.CommonCallback;
 import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
@@ -51,9 +52,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+/**
+ *  主
+ */
 public class MainActivity extends BaseActivity {
 
     @BindView(R.id.scan_result)//显示结果区域
@@ -111,7 +113,7 @@ public class MainActivity extends BaseActivity {
             barcodeStr = new String(barcode, 0, barcodelen); // 扫描结果
             // 兼容二维码url
             if (barcodeStr.indexOf("?f=") != -1) {
-                Log.d(TAG, "onReceive1: " + barcodeStr);
+                Log.i(TAG, "onReceive: " + barcodeStr);
                 // 加入验证
                 String AppDb = (String) SPUtils.getInstance().get(APP_DB, "");
                 if (barcodeStr.indexOf((String) SPUtils.getInstance().get(APP_DB, "")) == -1) {
@@ -134,7 +136,7 @@ public class MainActivity extends BaseActivity {
             if (barcodelen == 6 && appCurrBox.length() == 0) {
                 appCurrBox = barcodeStr;
                 String app_box_un = (String) SPUtils.getInstance().get(APP_BOX_UN, "");
-                Log.d(TAG, "onReceive: indexOf" + app_box_un.indexOf(appCurrBox) + ',' +
+                Log.i(TAG, "onReceive: indexOf" + app_box_un.indexOf(appCurrBox) + ',' +
                         app_box_un);
                 if (app_box_un.indexOf(appCurrBox) == -1) {
                     String f = (app_box_un.length() == 0) ? "" : String.valueOf(',');
@@ -199,7 +201,7 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             }
-            Log.d(TAG, "onReceive: scanNum" + scanNum);
+            Log.i(TAG, "onReceive: scanNum" + scanNum);
             // app_packing_num
             Integer packingNum = (Integer) SPUtils.getInstance().get(APP_PACKING_NUM, 0);
             if (scanNum < packingNum && barcodelen == 6) {
@@ -211,9 +213,9 @@ public class MainActivity extends BaseActivity {
                 scanNum = 0;
                 for (int i = 0; i < codeInfos.size(); i++) {
                     WriteStringToFile2(codeInfos.get(i) + "," + goodsId + "," + appCurrBox + "\n");
-                    Log.d(TAG, "onReceive: " + codeInfos.get(i) + "," + goodsId + "," + appCurrBox);
+                    Log.i(TAG, "onReceive: " + codeInfos.get(i) + "," + goodsId + "," + appCurrBox);
                 }
-                Log.d(TAG, "onReceive: " + codeInfos);
+                Log.i(TAG, "onReceive: " + codeInfos);
 
                 SPUtils.getInstance().put(APP_CURR_BOX + goodsId, "");
                 SPUtils.getInstance().put(APP_PACKING_GOODS + goodsId, "");
@@ -226,7 +228,7 @@ public class MainActivity extends BaseActivity {
             } else {
                 showScanResult.setText(showScanResult.getText().toString() + barcodeStr + "\n");
             }
-            Log.d(TAG, "onReceive: app_packing_num" + packingNum);
+            Log.i(TAG, "onReceive: app_packing_num" + packingNum);
             appCurr.setText("当前装箱（" + SPUtils.getInstance().get(APP_GOODS_NAME, "") + "）：" +
                     scanNum + "/" + packingNum);
 
@@ -309,7 +311,7 @@ public class MainActivity extends BaseActivity {
                     public void onSuccess(List response, String info) {
                         stopLoadingProgress();
                         T.showToast(info);
-                        Log.d(TAG, "onSuccess: " + info);
+                        Log.i(TAG, "onSuccess: " + info);
                         //重置已扫箱数为0
                         T.showToast("数据全部上传完成。");
                         SPUtils.getInstance().put(APP_PACKING_SUCCESS_NUM, 0);
@@ -354,13 +356,12 @@ public class MainActivity extends BaseActivity {
                 int length;
                 while ((byteread = inStream.read(buffer)) != -1) {
                     bytesum += byteread; //字节数 文件大小
-                    System.out.println(bytesum);
                     fs.write(buffer, 0, byteread);
                 }
                 inStream.close();
             }
         } catch (Exception e) {
-            Log.d(TAG, "copyFile: 复制单个文件操作出错");
+            Log.i(TAG, "copyFile: 复制单个文件操作出错");
             e.printStackTrace();
 
         }
@@ -423,9 +424,9 @@ public class MainActivity extends BaseActivity {
         showScanResult.setFocusable(true);
         showScanResult.requestFocus();
 
-        int packingNum = (int) SPUtils.getInstance().get(APP_PACKING_NUM, 0);
-        appCurr.setText("当前装箱（" + SPUtils.getInstance().get(APP_GOODS_NAME, "") + "）：" + num +
-                "/" + packingNum);
+        Goods goods = gson.fromJson((String) SPUtils.getInstance().get(APP_GOODS_INFO, gson.toJson(new Goods())), Goods.class);
+        appCurr.setText("当前装箱（" + goods.getName() + "）：" + num +
+                "/" + goods.getNum());
         appScuess.setText("已完成箱数：" + appPackingSuccessNum + " 箱");
     }
 
@@ -490,7 +491,7 @@ public class MainActivity extends BaseActivity {
         int[] idbuf = new int[]{PropertyID.WEDGE_INTENT_ACTION_NAME, PropertyID
                 .WEDGE_INTENT_DATA_STRING_TAG};
         String[] value_buf = mScanManager.getParameterString(idbuf);
-        Log.d(TAG, "-----value_buf-----" + value_buf);
+        Log.i(TAG, "-----value_buf-----" + value_buf);
 
         if (value_buf != null && value_buf[0] != null && !value_buf[0].equals("")) {
             filter.addAction(value_buf[0]);
@@ -508,7 +509,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG, "onKeyDown: " + keyCode);
         return super.onKeyDown(keyCode, event);
     }
 

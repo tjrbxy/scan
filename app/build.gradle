@@ -11,9 +11,26 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        //测试版本
+        debug {
+            /* 签名类型 */
+            //signingConfig signingConfigs.debug
+            /* 是否开启代码混淆，默认false */
+            minifyEnabled false
+            /* 是否应该生成可调试的apk */
+            debuggable true
+            /* 混淆规则配置文件 */
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        //生产版本
         release {
             // 是否启用混淆 true 不容易被破解
             minifyEnabled false
+            /* 是否应该生成可调试的apk */
+            debuggable false
+            /* 移除无用的resource文件 */
+            // http://d.android.com/r/tools/shrink-resources.html
+            shrinkResources false
             // 混淆文件 http://developer.android.com/guide/developing/tools/proguard.html
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

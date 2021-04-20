@@ -19,8 +19,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alixlp.scan.R;
-import com.alixlp.scan.bean.Goods;
 import com.alixlp.scan.biz.GoodsBiz;
+import com.alixlp.scan.entity.Goods;
 import com.alixlp.scan.utils.CommonCallback;
 import com.alixlp.scan.utils.GsonUtil;
 import com.alixlp.scan.utils.NetworkUtil;
@@ -29,22 +29,22 @@ import com.alixlp.scan.utils.T;
 import com.google.gson.reflect.TypeToken;
 import com.suke.widget.SwitchButton;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+/**
+ * 设置
+ *
+ */
 public class SettingActivity extends BaseActivity {
 
     @BindView(R.id.app_save)
     Button mBtnSave;
+    @BindView(R.id.btn_back)
+    Button mBtnBack;
     @BindView(R.id.app_db)
     EditText appDb;
     @BindView(R.id.spinner)
@@ -97,7 +97,7 @@ public class SettingActivity extends BaseActivity {
             appDb.setText(dbStr);
             mBtnSave.setText(R.string.app_update);
         }
-        String jsonGoods = (String) SPUtils.getInstance().get(APP_GOODS, "");
+        String jsonGoods = (String) SPUtils.getInstance().get(APP_GOODS_LIST, "");
         if (jsonGoods.length() > 10) {
 
             List<Goods> goods = GsonUtil.getGson().fromJson(jsonGoods, new TypeToken<List<Goods>>() {
@@ -115,12 +115,15 @@ public class SettingActivity extends BaseActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Goods goodsInfo = (Goods) parent.getItemAtPosition(position);
+                Log.i(TAG,"选中商品信息：" + goodsInfo.toString());
                 String str = "每箱的数量 :<font color =red >" + goodsInfo.getNum() + "</font>";
                 appPackingNum.setText(Html.fromHtml(str));
                 SPUtils.getInstance().put(APP_GOODS_KEY, position);
                 SPUtils.getInstance().put(APP_GOODS_ID, goodsInfo.getId());
                 SPUtils.getInstance().put(APP_GOODS_NAME, goodsInfo.getName());
                 SPUtils.getInstance().put(APP_PACKING_NUM, goodsInfo.getNum());
+                // 保存当前选中的商品
+                SPUtils.getInstance().put(APP_GOODS_INFO,gson.toJson(goodsInfo));
                 T.showToast("选中信息：(" + goodsInfo.getName() + ")");
             }
 
@@ -129,10 +132,10 @@ public class SettingActivity extends BaseActivity {
                 T.showToast("选择信息为1：(" + parent + ")");
             }
         });
+        // 设置语音提示
         mBtnSwitch.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(SwitchButton view, boolean isChecked) {
-                //TODO do your job
                 if (isChecked) {
                     T.showToast("粤语已开启！");
                 } else {
@@ -198,9 +201,15 @@ public class SettingActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.app_save})
+    @OnClick({R.id.app_save,R.id.btn_back})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+
+            case R.id.btn_back:
+                Intent intent = new Intent(SettingActivity.this, MainActivity.class);
+                startActivity(intent);
+                break;
+
             case R.id.app_save:
                 if (!NetworkUtil.isNetworkAvailable(SettingActivity.this)) {
                     T.showToast("请在有网络的情况下使用此按钮。");
@@ -221,22 +230,8 @@ public class SettingActivity extends BaseActivity {
 
                     @Override
                     public void onSuccess(List<Goods> response, String info) {
-                        try {
-                            JSONArray jsonArray = new JSONArray();
-                            JSONObject tmpObj;
-                            for (int i = 0; i < response.size(); i++) {
-                                tmpObj = new JSONObject();
-                                tmpObj.put("id", response.get(i).getId());
-                                tmpObj.put("name", response.get(i).getName());
-                                tmpObj.put("num", response.get(i).getNum());
-                                jsonArray.put(tmpObj);
-                            }
-                            String goods = jsonArray.toString();
-                            // 设置商品
-                            SPUtils.getInstance().put(APP_GOODS, goods);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        // 设置商品
+                        SPUtils.getInstance().put(APP_GOODS_LIST, gson.toJson(response));
                         Intent intent = new Intent(SettingActivity.this, SettingActivity.class);
                         startActivity(intent);
                     }
