@@ -38,5 +38,5 @@
     <string name="app_update">连接数据库/获取最新产品列表</string>
     <string name="app_search">请在此输入箱码或者产品码搜索</string>
     <string name="app_delete">删除当前最后一个码</string>
-    <string name="app_btn_back">返回扫码界面</string>
+    <string name="app_btn_back">保存设置 返回扫码界面</string>
 </resources>

@@ -99,7 +99,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding_small"
         android:layout_marginBottom="@dimen/padding_small"
-        android:background="@color/bg"
+        android:background="@color/bg_green"
         android:text="@string/app_btn_back"
         android:textColor="@color/white"
         android:textSize="14sp" />

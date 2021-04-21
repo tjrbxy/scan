@@ -46,8 +46,11 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -78,7 +81,7 @@ public class MainActivity extends BaseActivity {
     private ScanManager mScanManager;
     private SoundPool soundpool = null;
     private int soundid, pSoundid, bSoundid, iSoundid, rSoundid, rcSoundid, sSoundid,
-            outsideSoundid;
+            outsideSoundid,sanSoundid;
     private String barcodeStr;
 
     private boolean isUse = false;
@@ -169,7 +172,18 @@ public class MainActivity extends BaseActivity {
                 ArrayList<Object> limitCode = new ArrayList<>();
                 String json = (String) SPUtils.getInstance().get(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),"");
                 if (json.length() > 5 && json.indexOf(barcodeStr) != -1){
-                    Log.i(TAG, "最近三箱重复：" + barcodeStr );
+                    LinkedList linkedList = gson.fromJson(json, LinkedList.class);
+                    Iterator<Map> iterator = linkedList.iterator();
+                    String boxNum = "[]";
+                    while (iterator.hasNext()) {
+                        Map next = iterator.next();
+                        if (next.values().toString().indexOf(barcodeStr) != -1) {
+                            boxNum = next.keySet().toString();
+                        }
+                    }
+                    soundpool.play(sanSoundid, 1, 1, 0, 0, 1);
+                    T.showToast("该码先前已装入"+boxNum+"箱，请检查！");
+                    Log.i(TAG, "该码先前已装入"+boxNum+"箱，请检查！" );
                     return;
                 }
                 codeInfos = new ArrayList<>();
@@ -218,16 +232,29 @@ public class MainActivity extends BaseActivity {
                 showScanResult.setText("");
                 appScuess.setText("已完成箱数：" + (appSuccessNum + 1) + " 箱");
                 Log.i(TAG, "装箱成功的商品：" +codeInfos.toString());
-                ArrayList<Object> objects = new ArrayList<>();
+                LinkedList<Map> objects = new LinkedList<>(); // 容器
                 String json = (String) SPUtils.getInstance().get(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),"");
                 if (json.length() > 5){
-                    objects = gson.fromJson(json, ArrayList.class);
+                    objects = gson.fromJson(json, LinkedList.class);
                     if (objects.size() > 2){
-                        objects.remove(0);
+                        objects.removeFirst();
                     }
                     Log.i(TAG, "当前存入的数量："+ objects.size() + objects.toString());
                 }
-                objects.add(codeInfos);
+                HashMap<String, List> map = new HashMap<>();
+                map.put( appCurrBox, codeInfos);
+                objects.addLast(map);
+
+//                ArrayList<Object> objects = new ArrayList<>();
+//                String json = (String) SPUtils.getInstance().get(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),"");
+//                if (json.length() > 5){
+//                    objects = gson.fromJson(json, ArrayList.class);
+//                    if (objects.size() > 2){
+//                        objects.remove(0);
+//                    }
+//                    Log.i(TAG, "当前存入的数量："+ objects.size() + objects.toString());
+//                }
+//                objects.add(codeInfos);
                 SPUtils.getInstance().put(APP_GOODS_LIMIT + "_" + goodsInfo.getId(),gson.toJson(objects));
                 Log.i(TAG, "总码数: " + objects.toString());
                 soundpool.play(sSoundid, 1, 1, 0, 0, 1);
@@ -443,6 +470,7 @@ public class MainActivity extends BaseActivity {
             rcSoundid = soundpool.load(this, R.raw.codeboxrepeatc, 1); // 产品码重复
             sSoundid = soundpool.load(this, R.raw.codesuccessc, 1); //完成
             outsideSoundid = soundpool.load(this, R.raw.ctoutsidesoundid, 1); // 系统外码
+            sanSoundid = soundpool.load(this, R.raw.sanc, 1); // 3箱重复
         } else {
             // 普通话
             bSoundid = soundpool.load(this, R.raw.codebox, 1);
@@ -452,6 +480,7 @@ public class MainActivity extends BaseActivity {
             rcSoundid = soundpool.load(this, R.raw.codeboxrepeat, 1); // 产品码重复
             sSoundid = soundpool.load(this, R.raw.codesuccess, 1);
             outsideSoundid = soundpool.load(this, R.raw.outsidesoundid, 1); // 系统外码
+            sanSoundid = soundpool.load(this, R.raw.san, 1); // 3箱重复
         }
     }
 

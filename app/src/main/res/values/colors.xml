@@ -143,4 +143,5 @@
     <color name="gray_cc">#cccccc</color><!--灰色cc -->
     <color name="gray_8f">#8f8f8f</color><!--灰色8f -->
     <color name="bg">#FE9834</color>
+    <color name="bg_green">#3CBC2C</color>
 </resources>
