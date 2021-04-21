@@ -68,7 +68,7 @@
         <Button
             android:id="@+id/app_upload"
             android:layout_width="wrap_content"
-            android:layout_height="27dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/padding_small"
             android:layout_weight="1"
             android:background="@color/bg_green"

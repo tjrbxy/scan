@@ -23,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alixlp.scan.R;
 import com.alixlp.scan.biz.CodeBiz;
@@ -182,7 +183,7 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                     soundpool.play(sanSoundid, 1, 1, 0, 0, 1);
-                    T.showToast("该码先前已装入"+boxNum+"箱，请检查！");
+                    T.showToast("该码先前已装入"+boxNum+"箱，请检查！", Toast.LENGTH_LONG);
                     Log.i(TAG, "该码先前已装入"+boxNum+"箱，请检查！" );
                     return;
                 }

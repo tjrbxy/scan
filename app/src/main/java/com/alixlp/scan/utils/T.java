@@ -1,6 +1,7 @@
 package com.alixlp.scan.utils;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.widget.Toast;
 
 /**
@@ -13,6 +14,14 @@ public class T {
     public static void showToast(
             String content) {
         toast.setText(content);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+    public static void showToast(
+            String content,int duration) {
+        toast.setText(content);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setDuration(duration);
         toast.show();
     }
 
