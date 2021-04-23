@@ -38,6 +38,8 @@ android {
             debuggable true
             /* 混淆规则配置文件 */
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String","REQUEST_SCHEME","\"http://\""
         }
         //生产版本
         release {
@@ -52,7 +54,13 @@ android {
             shrinkResources false
             // 混淆文件 http://developer.android.com/guide/developing/tools/proguard.html
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String","REQUEST_SCHEME","\"http://\""
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
