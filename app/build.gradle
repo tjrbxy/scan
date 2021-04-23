@@ -1,6 +1,23 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/abel.tang/data/app/wangxiaoyang.keystore')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias '扫码装箱'
+        }
+        release {
+            storeFile file('/Users/abel.tang/data/app/wangxiaoyang.keystore')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias '扫码装箱'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.alixlp.scan"
@@ -14,7 +31,7 @@ android {
         //测试版本
         debug {
             /* 签名类型 */
-            //signingConfig signingConfigs.debug
+            signingConfig signingConfigs.debug
             /* 是否开启代码混淆，默认false */
             minifyEnabled false
             /* 是否应该生成可调试的apk */
@@ -24,6 +41,8 @@ android {
         }
         //生产版本
         release {
+            /* 签名类型 */
+            signingConfig signingConfigs.release
             // 是否启用混淆 true 不容易被破解
             minifyEnabled false
             /* 是否应该生成可调试的apk */
